@@ -1,1 +1,1 @@
-# Laboratoriun z przedmiotu "Programowanie w języku Python"
+# Laboratorium z przedmiotu "Programowanie w języku Python"
