@@ -1,11 +1,11 @@
 def lcm(l1: int, l2: int):  # oblicza nww(l1,l2)
     a = get_dividers(l1)
     b = get_dividers(l2)
-    result = a  # początkowym wynikiem są dzielniki pierwszej liczby, potem dodajemy pozostałe drugiej liczby
-    copy_a = a.copy()  # tworzy kopie a nie referencje do tablicy
+    result = a.copy()  # tworzy kopie a nie referencje do tablicy, potem są jeszcze potrzebne dzielniki pierwszej liczby
+    # początkowym wynikiem są dzielniki pierwszej liczby, potem dodajemy pozostałe drugiej liczby
     for j in range(len(b)):  # przechodzimy po całej tablicy dzielników drugeij liczby
-        if b[j] in copy_a:  # i jeżeli liczba jest już w dzielnikach to nie dodajemy
-            copy_a.remove(b[j])
+        if b[j] in a:  # i jeżeli liczba jest już w dzielnikach to nie dodajemy
+            a.remove(b[j])
         else:  # w przeciwynym razie dodajemy ją do końcowego wyniku
             result.append(b[j])
     return product_of_elements(result)
