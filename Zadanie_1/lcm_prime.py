@@ -1,47 +1,35 @@
-def lcm(a: [], b: []):
-    index_b = 0
-    result = []
-    for i in range(len(a)):
-        if index_b == len(b):
-            break
-        if a[i] == b[index_b]:
-            b[index_b] = 1
-            result.append(a[i])
-            index_b += 1
-    return iloczyn(a) * iloczyn(b)
+def lcm(l1: int, l2: int):  # oblicza nww(l1,l2)
+    a = get_dividers(l1)
+    b = get_dividers(l2)
+    result = a  # początkowym wynikiem są dzielniki pierwszej liczby, potem dodajemy pozostałe drugiej liczby
+    copy_a = a.copy()  # tworzy kopie a nie referencje do tablicy
+    for j in range(len(b)):  # przechodzimy po całej tablicy dzielników drugeij liczby
+        if b[j] in copy_a:  # i jeżeli liczba jest już w dzielnikach to nie dodajemy
+            copy_a.remove(b[j])
+        else:  # w przeciwynym razie dodajemy ją do końcowego wyniku
+            result.append(b[j])
+    return product_of_elements(result)
 
 
-def iloczyn(tab: []) -> int:
+def product_of_elements(tab: []) -> int:  # zwraca iloczyn wszystkich elementów w tablicy tab
     tmp = 1
     for i in tab:
         tmp *= i
     return tmp
 
 
-
-def dzielniki_liczby(x: int):
-    i=2
+def get_dividers(x: int):  # oblicza dzielniki podanej jako argument liczby
+    i = 2
     lista = []
-
     while x != 1:
         if x % i == 0:
             lista.append(i)
             x = x / i
             i = 2
-
-        else: i=i+1
-
+        else:
+            i = i + 1
     return lista
 
 
-
-tablica1 = dzielniki_liczby(192)
-tablica2 = dzielniki_liczby(348)
-print(lcm(tablica1,tablica2))
-print(tablica2)
-print(tablica1)
-
-
-
-
-
+if __name__ == "__main__":
+    print(lcm(192, 348))
