@@ -32,4 +32,4 @@ def get_dividers(x: int):  # oblicza dzielniki podanej jako argument liczby
 
 
 if __name__ == "__main__":
-    print(lcm(192, 348))
+    print(lcm(348, 192))
