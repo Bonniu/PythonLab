@@ -25,7 +25,6 @@ def get_dividers(x: int):  # oblicza dzielniki podanej jako argument liczby
         if x % i == 0:
             lista.append(i)
             x = x / i
-            i = 2
         else:
             i = i + 1
     return lista
