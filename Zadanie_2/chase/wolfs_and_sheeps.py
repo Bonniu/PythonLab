@@ -2,6 +2,10 @@ import random
 from math import sqrt
 import json
 import csv
+import argparse
+import os
+import logging
+import configparser
 
 
 class Sheep:
@@ -51,6 +55,8 @@ sheeps: list = []
 wolf = Wolf()
 data_json = []
 data_csv = []
+directory = "."
+wait_flag = True
 
 
 def init_sheeps():
@@ -94,7 +100,13 @@ def add_to_json_list(round_nr: int):
 
 
 def save_json_to_file(file_name: str):
-    with open(file_name, 'w') as outfile:
+    if directory != ".":
+        try:
+            os.mkdir(directory)
+        except OSError:
+            print("Creation of the directory %s failed" % directory)
+
+    with open(str(directory + "\\" + file_name), 'w') as outfile:
         json.dump(data_json, outfile, indent=4)
 
 
@@ -103,7 +115,12 @@ def add_to_csv(_round: int):
 
 
 def save_csv_to_file(file_name: str):
-    with open(file_name, 'w', newline='') as csv_file:
+    if directory != ".":
+        try:
+            os.mkdir(directory)
+        except OSError:
+            print("Creation of the directory %s failed" % directory)
+    with open(str(directory + "\\" + file_name), 'w', newline='') as csv_file:
         print(data_csv)
         csv_file.write("sep=,\n")
         csv_writer = csv.writer(csv_file, delimiter=',')
@@ -112,8 +129,29 @@ def save_csv_to_file(file_name: str):
     if csv_file.closed:
         return
     else:
-        print("ERROR WHILE SAVING")
-        pass
+        raise Exception("Error while saving")
+
+
+def load_from_ini_file(file_name: str):
+    config = configparser.ConfigParser()
+    config.read(file_name)
+    if float(config['Terrain']['InitPosLimit']) <= 0:
+        raise Exception("InitPosLimit musi być liczbą większą od 0")
+    else:
+        global init_pos_limit
+        init_pos_limit = float(config['Terrain']['InitPosLimit'])
+
+    if float(config['Movement']['SheepMoveDist']) <= 0:
+        raise Exception("SheepMoveDist musi być liczbą większą od 0")
+    else:
+        global sheep_move_dist
+        sheep_move_dist = float(config['Movement']['SheepMoveDist'])
+
+    if float(config['Movement']['WolfMoveDist']) <= 0:
+        raise Exception("WolfMoveDist musi być liczbą większą od 0")
+    else:
+        global wolf_move_dist
+        wolf_move_dist = float(config['Movement']['WolfMoveDist'])
 
 
 def simulate():
@@ -144,7 +182,8 @@ def simulate():
         #  informacje o turze
         print("Tura", round, "/", nr_of_rounds - 1, " Pozycja wilka: (", str(wolf.x), ",",
               str(wolf.y), ")", " Ilość żywych owiec: ", alive_sheeps(), "\n")
-
+        if wait_flag:
+            input("Press Enter to continue...")
         add_to_json_list(round)
         add_to_csv(round)
         #  licznik tury
@@ -158,4 +197,50 @@ def simulate():
 
 
 if __name__ == "__main__":
-    simulate()
+    choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    parser = argparse.ArgumentParser(description='Symulacja wilka i owiec')
+    parser.add_argument('-c', '--config', metavar='FILE',
+                        help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
+    parser.add_argument('-d', '--dir', metavar='DIR',
+                        help='podkatalog, w którym mają zostać zapisane pliki pos.json, alive.csv oraz - opcjonalnie '
+                             '- chase.log, gdzie DIR - nazwa podkatalogu')
+    parser.add_argument('-l', '--log', choices=choices, metavar='LEVEL',
+                        help='zapis zdarzeń do dziennika, gdzie '
+                             'LEVEL - poziom zdarzeń  (DEBUG, INFO, WARNING, ERROR lub CRITICAL)')
+    parser.add_argument('-r', '--rounds', metavar='NUM', type=int,
+                        help='liczba tur')
+    parser.add_argument('-s', '--sheep', metavar='NUM', type=int,
+                        help='liczba owiec')
+    parser.add_argument('-w', '--wait', action='store_true',
+                        help='oczekiwanie na naciśnięcie klawisza po wyświetlaniu podstawowych '
+                             'informacji o stanie symulacji na zakończenie każdej tury.')
+
+    args = parser.parse_args()
+    a = vars(args)
+
+    if a['config'] is not None:
+        load_from_ini_file(a['config'])
+
+    if a['dir'] is not None:
+        directory = a['dir']
+
+    if a['log'] is not None:
+        print("log - not none and not implemented")
+        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+        logging.getLoggerClass()
+
+    if a['rounds'] is not None:
+        if a['rounds'] <= 0:
+            raise Exception('Liczba tur musi być większa od 0')
+        nr_of_rounds = a['rounds']
+
+    if a['sheep'] is not None:
+        if a['sheep'] <= 0:
+            raise Exception('Liczba owiec musi być więskza od 0')
+        nr_of_sheeps = a['sheep']
+
+    if a['wait'] is not None:
+        wait_flag = a['wait']
+
+    print(a)
+    #  simulate()
