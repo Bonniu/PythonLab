@@ -1,6 +1,7 @@
 import random
 from math import sqrt
 import json
+import csv
 
 
 class Sheep:
@@ -49,6 +50,7 @@ wolf_move_dist = 1.0
 sheeps: list = []
 wolf = Wolf()
 data_json = []
+data_csv = []
 
 
 def init_sheeps():
@@ -96,6 +98,24 @@ def save_json_to_file(file_name: str):
         json.dump(data_json, outfile, indent=4)
 
 
+def add_to_csv(_round: int):
+    data_csv.append([_round, alive_sheeps()])
+
+
+def save_csv_to_file(file_name: str):
+    with open(file_name, 'w', newline='') as csv_file:
+        print(data_csv)
+        csv_file.write("sep=,\n")
+        csv_writer = csv.writer(csv_file, delimiter=',')
+        for i in data_csv:
+            csv_writer.writerow([i[0], i[1]])
+    if csv_file.closed:
+        return
+    else:
+        print("ERROR WHILE SAVING")
+        pass
+
+
 def simulate():
     init_sheeps()
     print_sheeps(only_alive=False)
@@ -125,12 +145,15 @@ def simulate():
         print("Tura", round, "/", nr_of_rounds - 1, " Pozycja wilka: (", str(wolf.x), ",",
               str(wolf.y), ")", " Ilość żywych owiec: ", alive_sheeps(), "\n")
 
-        #  dodanie do pliku json
         add_to_json_list(round)
+        add_to_csv(round)
         #  licznik tury
         round += 1
-        # za pętlą
+    # za pętlą
     save_json_to_file('pos.json')
+    save_csv_to_file('alive.csv')
+    add_to_csv(round)
+
     print_sheeps(only_alive=True)
 
 
