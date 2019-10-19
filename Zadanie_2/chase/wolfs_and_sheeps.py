@@ -68,7 +68,7 @@ def calc_distance(w: Wolf, s: Sheep):
     return sqrt((w.x - s.x) ** 2 + (w.y - s.y) ** 2)
 
 
-def print_sheeps(only_alive: bool):
+def print_sheeps(only_alive: bool = False):
     for i in range(len(sheeps)):
         if only_alive:
             if sheeps[i].is_alive:
@@ -154,9 +154,62 @@ def load_from_ini_file(file_name: str):
         wolf_move_dist = float(config['Movement']['WolfMoveDist'])
 
 
+def add_args_to_parser(_parser):
+    choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    _parser.add_argument('-c', '--config', metavar='FILE',
+                         help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
+    _parser.add_argument('-d', '--dir', metavar='DIR',
+                         help='podkatalog, w którym mają zostać zapisane pliki pos.json, alive.csv oraz - opcjonalnie '
+                              '- chase.log, gdzie DIR - nazwa podkatalogu')
+    _parser.add_argument('-l', '--log', choices=choices, metavar='LEVEL',
+                         help='zapis zdarzeń do dziennika, gdzie '
+                              'LEVEL - poziom zdarzeń  (DEBUG, INFO, WARNING, ERROR lub CRITICAL)')
+    _parser.add_argument('-r', '--rounds', metavar='NUM', type=int,
+                         help='liczba tur')
+    _parser.add_argument('-s', '--sheep', metavar='NUM', type=int,
+                         help='liczba owiec')
+    _parser.add_argument('-w', '--wait', action='store_true',
+                         help='flaga oczekiwania na naciśnięcie klawisza po wyświetlaniu podstawowych '
+                              'informacji o stanie symulacji na zakończenie każdej tury.')
+
+
+def handle_parser_args():
+    parser = argparse.ArgumentParser(description='Symulacja wilka i owiec')
+    add_args_to_parser(parser)
+    args: dict = vars(parser.parse_args())
+
+    if args['config'] is not None:
+        load_from_ini_file(args['config'])
+
+    if args['dir'] is not None:
+        global directory
+        directory = args['dir']
+
+    if args['log'] is not None:
+        print("log - not none and not implemented")
+        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+        logging.getLoggerClass()
+
+    if args['rounds'] is not None:
+        if args['rounds'] <= 0:
+            raise Exception('Liczba tur musi być większa od 0')
+        global nr_of_rounds
+        nr_of_rounds = args['rounds']
+
+    if args['sheep'] is not None:
+        if args['sheep'] <= 0:
+            raise Exception('Liczba owiec musi być większa od 0')
+        global nr_of_sheeps
+        nr_of_sheeps = args['sheep']
+
+    if args['wait'] is not None:
+        global wait_flag
+        wait_flag = args['wait']
+
+
 def simulate():
     init_sheeps()
-    print_sheeps(only_alive=False)
+    print_sheeps()
     round = 0
     while round != nr_of_rounds and alive_sheeps() > 0:
         #  ruch owiec
@@ -191,56 +244,10 @@ def simulate():
     # za pętlą
     save_json_to_file('pos.json')
     save_csv_to_file('alive.csv')
-    add_to_csv(round)
 
     print_sheeps(only_alive=True)
 
 
 if __name__ == "__main__":
-    choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
-    parser = argparse.ArgumentParser(description='Symulacja wilka i owiec')
-    parser.add_argument('-c', '--config', metavar='FILE',
-                        help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
-    parser.add_argument('-d', '--dir', metavar='DIR',
-                        help='podkatalog, w którym mają zostać zapisane pliki pos.json, alive.csv oraz - opcjonalnie '
-                             '- chase.log, gdzie DIR - nazwa podkatalogu')
-    parser.add_argument('-l', '--log', choices=choices, metavar='LEVEL',
-                        help='zapis zdarzeń do dziennika, gdzie '
-                             'LEVEL - poziom zdarzeń  (DEBUG, INFO, WARNING, ERROR lub CRITICAL)')
-    parser.add_argument('-r', '--rounds', metavar='NUM', type=int,
-                        help='liczba tur')
-    parser.add_argument('-s', '--sheep', metavar='NUM', type=int,
-                        help='liczba owiec')
-    parser.add_argument('-w', '--wait', action='store_true',
-                        help='oczekiwanie na naciśnięcie klawisza po wyświetlaniu podstawowych '
-                             'informacji o stanie symulacji na zakończenie każdej tury.')
-
-    args = parser.parse_args()
-    a = vars(args)
-
-    if a['config'] is not None:
-        load_from_ini_file(a['config'])
-
-    if a['dir'] is not None:
-        directory = a['dir']
-
-    if a['log'] is not None:
-        print("log - not none and not implemented")
-        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-        logging.getLoggerClass()
-
-    if a['rounds'] is not None:
-        if a['rounds'] <= 0:
-            raise Exception('Liczba tur musi być większa od 0')
-        nr_of_rounds = a['rounds']
-
-    if a['sheep'] is not None:
-        if a['sheep'] <= 0:
-            raise Exception('Liczba owiec musi być więskza od 0')
-        nr_of_sheeps = a['sheep']
-
-    if a['wait'] is not None:
-        wait_flag = a['wait']
-
-    print(a)
-    #  simulate()
+    handle_parser_args()
+    simulate()
