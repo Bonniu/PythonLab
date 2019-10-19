@@ -1,12 +1,6 @@
 import random
 from math import sqrt
-
-nr_of_rounds = 50
-nr_of_sheeps = 15
-init_pos_limit = 10.0
-sheep_move_dist = 0.5
-wolf_move_dist = 1.0
-sheeps: list = []
+import json
 
 
 class Sheep:
@@ -47,6 +41,16 @@ class Wolf:
         return "Wolf[x=" + str(self.x) + ", y=" + str(self.y) + "]"
 
 
+nr_of_rounds = 50
+nr_of_sheeps = 15
+init_pos_limit = 10.0
+sheep_move_dist = 0.5
+wolf_move_dist = 1.0
+sheeps: list = []
+wolf = Wolf()
+data_json = []
+
+
 def init_sheeps():
     for i in range(nr_of_sheeps):
         sheeps.append(Sheep())
@@ -73,10 +77,28 @@ def alive_sheeps() -> int:
     return counter
 
 
+def add_to_json_list(round_nr: int):
+    _ = []
+    for i in sheeps:
+        if i.is_alive:
+            _.append((i.x, i.y))
+        else:
+            _.append(None)
+    data_json.append({
+        'round_no': round_nr,
+        'wolf_pos': (wolf.x, wolf.y),
+        'sheep_pos': _
+    })
+
+
+def save_json_to_file(file_name: str):
+    with open(file_name, 'w') as outfile:
+        json.dump(data_json, outfile, indent=4)
+
+
 def simulate():
     init_sheeps()
     print_sheeps(only_alive=False)
-    wolf = Wolf()
     round = 0
     while round != nr_of_rounds and alive_sheeps() > 0:
         #  ruch owiec
@@ -102,7 +124,13 @@ def simulate():
         #  informacje o turze
         print("Tura", round, "/", nr_of_rounds - 1, " Pozycja wilka: (", str(wolf.x), ",",
               str(wolf.y), ")", " Ilość żywych owiec: ", alive_sheeps(), "\n")
+
+        #  dodanie do pliku json
+        add_to_json_list(round)
+        #  licznik tury
         round += 1
+        # za pętlą
+    save_json_to_file('pos.json')
     print_sheeps(only_alive=True)
 
 
