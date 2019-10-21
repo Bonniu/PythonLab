@@ -8,7 +8,6 @@ import logging
 import configparser
 
 
-# test
 class Sheep:
     def __init__(self):
         self.x = random.randint(-init_pos_limit * 100, init_pos_limit * 100) / 100
@@ -55,12 +54,14 @@ nr_of_sheeps = 15
 init_pos_limit = 10.0
 sheep_move_dist = 0.5
 wolf_move_dist = 1.0
-sheeps: list = []
+sheeps = []
 wolf = Wolf()
 data_json = []
 data_csv = []
 directory = "."
 wait_flag = True
+logging_type = 0
+logging_choices = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICAL': 50}
 
 
 def init_sheeps():
@@ -158,14 +159,34 @@ def load_from_ini_file(file_name: str):
         wolf_move_dist = float(config['Movement']['WolfMoveDist'])
 
 
+def make_log(message: str, log_msg_type: int, objects: list):
+    if log_msg_type not in logging_choices.values():
+        logging.critical('Atrybut log_msg_type jest spoza zakresu [10,20,30,40,50].')
+        raise Exception('Atrybut log_msg_type jest spoza zakresu [10,20,30,40,50].')
+
+    if logging_type == 10:
+        logging.debug(message + str(objects))
+
+    if logging_type == 20:
+        logging.info(message + str(objects))
+
+    if logging_type == 30:
+        logging.warning(message + str(objects))
+
+    if logging_type == 40:
+        logging.error(message + str(objects))
+
+    if logging_type == 50:
+        logging.critical(message + str(objects))
+
+
 def add_args_to_parser(_parser):
-    choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
     _parser.add_argument('-c', '--config', metavar='FILE',
                          help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
     _parser.add_argument('-d', '--dir', metavar='DIR',
                          help='podkatalog, w którym mają zostać zapisane pliki pos.json, alive.csv oraz - opcjonalnie '
                               '- chase.log, gdzie DIR - nazwa podkatalogu')
-    _parser.add_argument('-l', '--log', choices=choices, metavar='LEVEL',
+    _parser.add_argument('-l', '--log', choices=logging_choices.keys(), metavar='LEVEL',
                          help='zapis zdarzeń do dziennika, gdzie '
                               'LEVEL - poziom zdarzeń  (DEBUG, INFO, WARNING, ERROR lub CRITICAL)')
     _parser.add_argument('-r', '--rounds', metavar='NUM', type=int,
@@ -192,7 +213,9 @@ def handle_parser_args():
     if args['log'] is not None:
         print("log - not none and not implemented")
         logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-        logging.getLoggerClass()
+        global logging_type
+        logging_type = logging_choices[args['log']]
+        print(logging_type)
 
     if args['rounds'] is not None:
         if args['rounds'] <= 0:
@@ -254,4 +277,4 @@ def simulate():
 
 if __name__ == "__main__":
     handle_parser_args()
-    simulate()
+    # simulate()
