@@ -1,3 +1,4 @@
+# przyblizenie liczby pi
 def pi(n: int):
     if n < 1:
         return 0

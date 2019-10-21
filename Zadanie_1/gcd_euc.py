@@ -1,3 +1,4 @@
+# najwiekszy wspolny dzielnik
 def nwd(a: int, b: int):
     if a < 1 or b < 1:
         return None
