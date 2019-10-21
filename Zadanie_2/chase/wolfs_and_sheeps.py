@@ -7,7 +7,8 @@ import os
 import logging
 import configparser
 
-#test
+
+# test
 class Sheep:
     def __init__(self):
         self.x = random.randint(-init_pos_limit * 100, init_pos_limit * 100) / 100
@@ -39,8 +40,11 @@ class Wolf:
 
     def move_wolf(self, sheep: Sheep):
         vector = (sheep.x - self.x, sheep.y - self.y)
-        self.x += vector[0] * wolf_move_dist / calc_distance(self, sheep)
-        self.y += vector[1] * wolf_move_dist / calc_distance(self, sheep)
+        tmp_x = vector[0] * wolf_move_dist / calc_distance(self, sheep)
+        tmp_y = vector[1] * wolf_move_dist / calc_distance(self, sheep)
+        self.x += tmp_x
+        self.y += tmp_y
+        # print("Wilk ruszyl sie o :", sqrt(tmp_x ** 2 + tmp_y ** 2))
 
     def __repr__(self):
         return "Wolf[x=" + str(self.x) + ", y=" + str(self.y) + "]"
