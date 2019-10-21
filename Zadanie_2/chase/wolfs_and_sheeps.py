@@ -120,6 +120,7 @@ def add_to_csv(_round: int):
 
 
 def save_csv_to_file(file_name: str):
+    logging.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
     if directory != ".":
         try:
             os.mkdir(directory)
@@ -159,27 +160,6 @@ def load_from_ini_file(file_name: str):
         wolf_move_dist = float(config['Movement']['WolfMoveDist'])
 
 
-def make_log(message: str, log_msg_type: int, objects: list):
-    if log_msg_type not in logging_choices.values():
-        logging.critical('Atrybut log_msg_type jest spoza zakresu [10,20,30,40,50].')
-        raise Exception('Atrybut log_msg_type jest spoza zakresu [10,20,30,40,50].')
-
-    if logging_type == 10:
-        logging.debug(message + str(objects))
-
-    if logging_type == 20:
-        logging.info(message + str(objects))
-
-    if logging_type == 30:
-        logging.warning(message + str(objects))
-
-    if logging_type == 40:
-        logging.error(message + str(objects))
-
-    if logging_type == 50:
-        logging.critical(message + str(objects))
-
-
 def add_args_to_parser(_parser):
     _parser.add_argument('-c', '--config', metavar='FILE',
                          help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
@@ -211,11 +191,10 @@ def handle_parser_args():
         directory = args['dir']
 
     if args['log'] is not None:
-        print("log - not none and not implemented")
-        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
         global logging_type
         logging_type = logging_choices[args['log']]
-        print(logging_type)
+        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s',
+                            level=logging_type)
 
     if args['rounds'] is not None:
         if args['rounds'] <= 0:
@@ -277,4 +256,4 @@ def simulate():
 
 if __name__ == "__main__":
     handle_parser_args()
-    # simulate()
+    simulate()
