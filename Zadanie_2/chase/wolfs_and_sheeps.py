@@ -10,23 +10,39 @@ import configparser
 
 class Sheep:
     def __init__(self):
+        logger.debug('Wywołana metoda __init__ z klasy Sheep')
         self.x = random.randint(-init_pos_limit * 100, init_pos_limit * 100) / 100
         self.y = random.randint(-init_pos_limit * 100, init_pos_limit * 100) / 100
         self.is_alive = True
+        logger.info('Ustawienie pozycji owcy oraz flagi is_alive: ' + self.__repr__())
+        logger.debug('Wyjście z metody __init__ z klasy Sheep')
 
     def move_sheep(self):
+        logger.debug('Wywołana metoda move_sheep z argumentem typu Sheep - ' + self.__repr__())
+        logger.info('Wylosowanie kierunku, w którym pójdzie owca')
         direction = random.randint(1, 4)
         if direction == 1:
+            logger.info('Kierunek: do góry, początkowa pozycja ' + self.__repr__())
             self.y += sheep_move_dist
+            logger.info('Kierunek: do góry, końcowa pozycja ' + self.__repr__())
         elif direction == 2:
+            logger.info('Kierunek: w prawo, początkowa pozycja ' + self.__repr__())
             self.x += sheep_move_dist
+            logger.info('Kierunek: w prawo, końcowa pozycja ' + self.__repr__())
         elif direction == 3:
+            logger.info('Kierunek: w dół, początkowa pozycja ' + self.__repr__())
             self.y -= sheep_move_dist
+            logger.info('Kierunek: w dół, końcowa pozycja ' + self.__repr__())
         else:
+            logger.info('Kierunek: w lewo, początkowa pozycja ' + self.__repr__())
             self.x -= sheep_move_dist
+            logger.info('Kierunek: w lewo, końcowa pozycja ' + self.__repr__())
+        logger.debug('Wyjście z metody move_sheep')
 
     def kill_sheep(self):
+        logger.debug('Wywołana metoda kill_sheep z klasy Sheep na obiekcie ' + self.__repr__())
         self.is_alive = False
+        logger.debug('Wyjście z metody kill_sheep, końcowy stan obiektu: ' + self.__repr__())
 
     def __repr__(self):
         return "Sheep[x=" + str(self.x) + ", y=" + str(self.y) + ", is_alive=" + str(self.is_alive) + "]"
@@ -34,28 +50,35 @@ class Sheep:
 
 class Wolf:
     def __init__(self):
+        logger.debug('Wywołana metoda __init__ z klasy Wolf')
         self.x = 0.0
         self.y = 0.0
+        logger.debug('Wyjście z metody __init__, utworzono obiekt ' + self.__repr__())
 
     def move_wolf(self, sheep: Sheep):
+        logger.debug('Wywołana metoda move_wolf z klasy Wolf z parametrami: self=' + self.__repr__() + ', sheep=' +
+                     sheep.__repr__())
         vector = (sheep.x - self.x, sheep.y - self.y)
         tmp_x = vector[0] * wolf_move_dist / calc_distance(self, sheep)
         tmp_y = vector[1] * wolf_move_dist / calc_distance(self, sheep)
+        logger.info('Ustawienie pozycji wilka: początkowa pozycja: ' + self.__repr__())
         self.x += tmp_x
         self.y += tmp_y
-        # print("Wilk ruszyl sie o :", sqrt(tmp_x ** 2 + tmp_y ** 2))
+        logger.info('Ustawienie pozycji wilka: końcowa pozycja: ' + self.__repr__())
+        logger.debug('Wyjście z metody move_wolf z klasy Wolf')
 
     def __repr__(self):
         return "Wolf[x=" + str(self.x) + ", y=" + str(self.y) + "]"
 
 
+# zmienne globalne
 nr_of_rounds = 50
 nr_of_sheeps = 15
 init_pos_limit = 10.0
 sheep_move_dist = 0.5
 wolf_move_dist = 1.0
 sheeps = []
-wolf = Wolf()
+wolf: Wolf
 data_json = []
 data_csv = []
 directory = "."
@@ -69,6 +92,11 @@ logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s:%(level
 def init_sheeps():
     for i in range(nr_of_sheeps):
         sheeps.append(Sheep())
+
+
+def init_wolf():
+    global wolf
+    wolf = Wolf()
 
 
 def calc_distance(w: Wolf, s: Sheep):
@@ -123,7 +151,6 @@ def add_to_csv(round_: int):
 
 def save_csv_to_file(file_name: str):
     logger.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
-    logger.info('Wywołana metoda save_csv_to_file z parametrem INFOOOOO')
     if directory != ".":
         try:
             os.mkdir(directory)
@@ -139,26 +166,32 @@ def save_csv_to_file(file_name: str):
         logger.debug('Wyjście z metody save_csv_to_file')
         return
     else:
-        raise Exception("Error while saving")
+        logger.error('Błąd zamknięcia pliku .csv do pliku!')
+        raise Exception("Błąd zapisu")
 
 
 def load_from_ini_file(file_name: str):
     logger.debug('Wywołana metoda load_from_ini_file z parametrem file_name=' + file_name)
     config = configparser.ConfigParser()
+    logger.info('Czytanie z pliku .ini')
     config.read(file_name)
+
     if float(config['Terrain']['InitPosLimit']) <= 0:
+        logger.critical('InitPosLimit musi być liczbą większą od 0')
         raise Exception("InitPosLimit musi być liczbą większą od 0")
     else:
         global init_pos_limit
         init_pos_limit = float(config['Terrain']['InitPosLimit'])
 
     if float(config['Movement']['SheepMoveDist']) <= 0:
+        logger.critical('SheepMoveDist musi być liczbą większą od 0')
         raise Exception("SheepMoveDist musi być liczbą większą od 0")
     else:
         global sheep_move_dist
         sheep_move_dist = float(config['Movement']['SheepMoveDist'])
 
     if float(config['Movement']['WolfMoveDist']) <= 0:
+        logger.critical('WolfMoveDist musi być liczbą większą od 0')
         raise Exception("WolfMoveDist musi być liczbą większą od 0")
     else:
         global wolf_move_dist
@@ -168,6 +201,8 @@ def load_from_ini_file(file_name: str):
 
 
 def close_logger():
+    logger.debug('Wywołana metoda close_logger')
+    logger.info('Zamykanie loggera metodą logging.shutdown()')
     logging.shutdown()
 
 
@@ -227,6 +262,7 @@ def handle_parser_args():
 
 def simulate():
     init_sheeps()
+    init_wolf()
     print_sheeps()
     round_ = 0
     while round_ != nr_of_rounds and alive_sheeps() > 0:
