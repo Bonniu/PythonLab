@@ -62,6 +62,8 @@ directory = "."
 wait_flag = True
 logging_type = 0
 logging_choices = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICAL': 50}
+logger: logging
+logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s:%(levelname)s:%(message)s')
 
 
 def init_sheeps():
@@ -115,12 +117,13 @@ def save_json_to_file(file_name: str):
         json.dump(data_json, outfile, indent=4)
 
 
-def add_to_csv(_round: int):
-    data_csv.append([_round, alive_sheeps()])
+def add_to_csv(round_: int):
+    data_csv.append([round_, alive_sheeps()])
 
 
 def save_csv_to_file(file_name: str):
-    logging.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
+    logger.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
+    logger.info('Wywołana metoda save_csv_to_file z parametrem INFOOOOO')
     if directory != ".":
         try:
             os.mkdir(directory)
@@ -133,12 +136,14 @@ def save_csv_to_file(file_name: str):
         for i in data_csv:
             csv_writer.writerow([i[0], i[1]])
     if csv_file.closed:
+        logger.debug('Wyjście z metody save_csv_to_file')
         return
     else:
         raise Exception("Error while saving")
 
 
 def load_from_ini_file(file_name: str):
+    logger.debug('Wywołana metoda load_from_ini_file z parametrem file_name=' + file_name)
     config = configparser.ConfigParser()
     config.read(file_name)
     if float(config['Terrain']['InitPosLimit']) <= 0:
@@ -159,21 +164,27 @@ def load_from_ini_file(file_name: str):
         global wolf_move_dist
         wolf_move_dist = float(config['Movement']['WolfMoveDist'])
 
+    logging.debug('Wyjście z metody load_from_ini_file')
 
-def add_args_to_parser(_parser):
-    _parser.add_argument('-c', '--config', metavar='FILE',
+
+def close_logger():
+    logging.shutdown()
+
+
+def add_args_to_parser(parser_):
+    parser_.add_argument('-c', '--config', metavar='FILE',
                          help='dodatkowy plik konfiguracyjny, gdzie FILE - nazwa pliku')
-    _parser.add_argument('-d', '--dir', metavar='DIR',
+    parser_.add_argument('-d', '--dir', metavar='DIR',
                          help='podkatalog, w którym mają zostać zapisane pliki pos.json, alive.csv oraz - opcjonalnie '
                               '- chase.log, gdzie DIR - nazwa podkatalogu')
-    _parser.add_argument('-l', '--log', choices=logging_choices.keys(), metavar='LEVEL',
+    parser_.add_argument('-l', '--log', choices=logging_choices.keys(), metavar='LEVEL',
                          help='zapis zdarzeń do dziennika, gdzie '
                               'LEVEL - poziom zdarzeń  (DEBUG, INFO, WARNING, ERROR lub CRITICAL)')
-    _parser.add_argument('-r', '--rounds', metavar='NUM', type=int,
+    parser_.add_argument('-r', '--rounds', metavar='NUM', type=int,
                          help='liczba tur')
-    _parser.add_argument('-s', '--sheep', metavar='NUM', type=int,
+    parser_.add_argument('-s', '--sheep', metavar='NUM', type=int,
                          help='liczba owiec')
-    _parser.add_argument('-w', '--wait', action='store_true',
+    parser_.add_argument('-w', '--wait', action='store_true',
                          help='flaga oczekiwania na naciśnięcie klawisza po wyświetlaniu podstawowych '
                               'informacji o stanie symulacji na zakończenie każdej tury.')
 
@@ -190,11 +201,12 @@ def handle_parser_args():
         global directory
         directory = args['dir']
 
+    global logger
+    logger = logging.getLogger(__name__)
     if args['log'] is not None:
         global logging_type
         logging_type = logging_choices[args['log']]
-        logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s',
-                            level=logging_type)
+        logger.setLevel(logging_type)
 
     if args['rounds'] is not None:
         if args['rounds'] <= 0:
@@ -216,8 +228,8 @@ def handle_parser_args():
 def simulate():
     init_sheeps()
     print_sheeps()
-    round = 0
-    while round != nr_of_rounds and alive_sheeps() > 0:
+    round_ = 0
+    while round_ != nr_of_rounds and alive_sheeps() > 0:
         #  ruch owiec
         for i in sheeps:
             i.move_sheep()
@@ -239,21 +251,29 @@ def simulate():
             wolf.move_wolf(sheeps[closest_sheep_index])
 
         #  informacje o turze
-        print("Tura", round, "/", nr_of_rounds - 1, " Pozycja wilka: (", str(wolf.x), ",",
+        print("Tura", round_, "/", nr_of_rounds - 1, " Pozycja wilka: (", str(wolf.x), ",",
               str(wolf.y), ")", " Ilość żywych owiec: ", alive_sheeps(), "\n")
         if wait_flag:
             input("Press Enter to continue...")
-        add_to_json_list(round)
-        add_to_csv(round)
+        add_to_json_list(round_)
+        add_to_csv(round_)
         #  licznik tury
-        round += 1
+        round_ += 1
     # za pętlą
     save_json_to_file('pos.json')
     save_csv_to_file('alive.csv')
 
     print_sheeps(only_alive=True)
+    close_logger()  # bez tego nie działa usuwanie pliku
 
 
 if __name__ == "__main__":
     handle_parser_args()
     simulate()
+    # do przemyślenia tutaj to całe
+    if logging_type == 0:
+        try:
+            os.remove("chase.log")
+        except PermissionError:
+            print("Nie udało się usunąć pliku chase.log!")
+            logger.critical("Nie udało się usunąć pliku chase.log")
