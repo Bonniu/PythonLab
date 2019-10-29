@@ -1,4 +1,4 @@
-from src import wolfs_and_sheeps as was
+import wolfs_and_sheeps as was
 
 if __name__ == "__main__":
     simulate = was.Simulate()
