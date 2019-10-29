@@ -14,7 +14,7 @@ wolf_move_dist = 1.0
 directory = "."
 logging_type = 0
 logging_choices = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICAL': 50}
-logging.basicConfig(filename='chase.log', filemode='w', format='%(name)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename=directory + "\\" + 'chase.log', filemode='w', format='%(name)s:%(levelname)s:%(message)s')
 
 
 class Sheep:
@@ -245,57 +245,25 @@ class Simulate:
         if args['wait'] is not None:
             self.wait_flag = args['wait']
 
-    def simulate(self):
-        self.init_sheeps()
-        self.print_sheeps()
-        self.init_wolf()
-        round_ = 0
-        while round_ != self.nr_of_rounds and self.alive_sheeps() > 0:
-            #  ruch owiec
-            for i in self.sheeps:
+    def move_wolf(self):
+        #  ruch wilka
+        closest_sheep_index = 0
+        closest_sheep_dist = 1000000
+
+        for i in range(len(self.sheeps)):
+            if calc_distance(self.wolf, self.sheeps[i]) < closest_sheep_dist and self.sheeps[i].is_alive:
+                closest_sheep_index = i
+                closest_sheep_dist = calc_distance(self.wolf, self.sheeps[i])
+
+        #  zjedzenie lub ruch wilka
+        if closest_sheep_dist < wolf_move_dist:
+            self.sheeps[closest_sheep_index].kill_sheep()
+            print("Zjedzona owca nr", closest_sheep_index)
+            logger.info("Zjedzona owca nr " + str(closest_sheep_index))
+        else:
+            self.wolf.move_wolf(self.sheeps[closest_sheep_index])
+
+    def move_sheeps(self):
+        for i in self.sheeps:
+            if i.is_alive:
                 i.move_sheep()
-
-            #  ruch wilka
-            closest_sheep_index = 0
-            closest_sheep_dist = 1000000
-
-            for i in range(len(self.sheeps)):
-                if calc_distance(self.wolf, self.sheeps[i]) < closest_sheep_dist and self.sheeps[i].is_alive:
-                    closest_sheep_index = i
-                    closest_sheep_dist = calc_distance(self.wolf, self.sheeps[i])
-
-            #  zjedzenie lub ruch wilka
-            if closest_sheep_dist < wolf_move_dist:
-                self.sheeps[closest_sheep_index].kill_sheep()
-                print("Zjedzona owca nr", closest_sheep_index)
-            else:
-                self.wolf.move_wolf(self.sheeps[closest_sheep_index])
-
-            #  informacje o turze
-            print("Tura", round_, "/", self.nr_of_rounds - 1, " Pozycja wilka: (", str(self.wolf.x), ",",
-                  str(self.wolf.y), ")", " Ilość żywych owiec: ", self.alive_sheeps(), "\n")
-            if self.wait_flag:
-                input("Press Enter to continue...")
-            self.add_to_json_list(round_)
-            self.add_to_csv(round_)
-            #  licznik tury
-            round_ += 1
-        # za pętlą
-        self.save_json_to_file('pos.json')
-        self.save_csv_to_file('alive.csv')
-
-        self.print_sheeps(only_alive=True)
-        close_logger()  # bez tego nie działa usuwanie pliku
-
-
-if __name__ == "__main__":
-    simulate = Simulate()
-    simulate.handle_parser_args()
-    simulate.simulate()
-    # do przemyślenia tutaj to całe
-    if logging_type == 0:
-        try:
-            os.remove("chase.log")
-        except PermissionError:
-            print("Nie udało się usunąć pliku chase.log!")
-            logger.critical("Nie udało się usunąć pliku chase.log")
