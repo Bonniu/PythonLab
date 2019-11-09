@@ -1,0 +1,10 @@
+zadanie na 5 komendy:
+Tworzenie wirtualnego środowiska: python3 venv /ścieżka/do/nowego/środowiska
+Uruchomienie venv: /ścieżka/do/nowego/środowiska/scripts/activate.bat
+Zainstalowanie pakietu: python -m pip install /ścieżka/do/pakietu
+Uruchomienie symulacji w trybie konsolowym: python -m chase [args]
+########## Mniej więcej coś takiego
+python venv d:\newVenv
+d:\newVenv\scripts\activate.bat
+python -m pip install d:\...\pythonlab\zadanie_2\chase
+python -m chase [args]
