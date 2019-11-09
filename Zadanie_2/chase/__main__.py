@@ -1,7 +1,7 @@
-import wolfs_and_sheeps as was
+import Simulate
 
 if __name__ == "__main__":
-    simulate = was.Simulate()
+    simulate = Simulate.Simulate()
     simulate.handle_parser_args()
 
     simulate.init_sheeps()
@@ -29,12 +29,12 @@ if __name__ == "__main__":
     simulate.save_csv_to_file('alive.csv')
 
     simulate.print_sheeps(only_alive=True)
-    was.close_logger()  # bez tego nie działa usuwanie pliku
+    Simulate.close_logger()  # bez tego nie działa usuwanie pliku
 
     # do przemyślenia tutaj to całe
-    if was.logging_type == 0:
+    if Simulate.logging_type == 0:
         try:
-            was.os.remove("chase.log")
+            Simulate.os.remove("chase.log")
         except PermissionError:
             print("Nie udało się usunąć pliku chase.log!")
-            was.logger.critical("Nie udało się usunąć pliku chase.log")
+            Simulate.logger.critical("Nie udało się usunąć pliku chase.log")
