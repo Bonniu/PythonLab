@@ -29,12 +29,4 @@ if __name__ == "__main__":
     simulate.save_csv_to_file('alive.csv')
 
     simulate.print_sheeps(only_alive=True)
-    Simulate.close_logger()  # bez tego nie działa usuwanie pliku
-
-    # do przemyślenia tutaj to całe
-    if Simulate.logging_type == 0:
-        try:
-            Simulate.os.remove("chase.log")
-        except PermissionError:
-            print("Nie udało się usunąć pliku chase.log!")
-            Simulate.logger.critical("Nie udało się usunąć pliku chase.log")
+    # Simulate.close_logger()

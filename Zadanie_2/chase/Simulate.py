@@ -15,7 +15,6 @@ logger: logging
 directory = "."
 logging_type = 0
 logging_choices = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICAL': 50}
-logging.basicConfig(filename=directory + "\\" + 'chase.log', filemode='w', format='%(name)s:%(levelname)s:%(message)s')
 
 
 def calc_distance(w: Wolf.Wolf, s: Sheep.Sheep):
@@ -86,6 +85,8 @@ class Simulate:
         self.data_json = []
         self.data_csv = []
         self.wait_flag = True
+        global logger
+        logger = logging.getLogger(__name__)
 
     def init_sheeps(self):
         for i in range(self.nr_of_sheeps):
@@ -123,11 +124,6 @@ class Simulate:
         })
 
     def save_json_to_file(self, file_name: str):
-        if directory != ".":
-            try:
-                os.mkdir(directory)
-            except OSError:
-                pass
         with open(str(directory + "\\" + file_name), 'w') as outfile:
             json.dump(self.data_json, outfile, indent=4)
 
@@ -136,11 +132,6 @@ class Simulate:
 
     def save_csv_to_file(self, file_name: str):
         logger.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
-        if directory != ".":
-            try:
-                os.mkdir(directory)
-            except OSError:
-                pass
         with open(str(directory + "\\" + file_name), 'w', newline='') as csv_file:
             csv_file.write("sep=,\n")
             csv_writer = csv.writer(csv_file, delimiter=',')
@@ -158,19 +149,25 @@ class Simulate:
         add_args_to_parser(parser)
         args: dict = vars(parser.parse_args())
 
-        global logger
-        logger = logging.getLogger(__name__)
+        if args['dir'] is not None:
+            global directory
+            directory = args['dir']
+            try:
+                os.mkdir(directory)
+            except FileExistsError:
+                pass
+            except OSError:
+                print("error")
+
         if args['log'] is not None:
             global logging_type
             logging_type = logging_choices[args['log']]
             logger.setLevel(logging_type)
+            logging.basicConfig(filename=directory + "\\" + 'chase.log', filemode='w',
+                                format='%(asctime)s : %(levelname)s : %(message)s')
 
         if args['config'] is not None:
             load_from_ini_file(args['config'])
-
-        if args['dir'] is not None:
-            global directory
-            directory = args['dir']
 
         if args['rounds'] is not None:
             if args['rounds'] <= 0:
