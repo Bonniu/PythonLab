@@ -2,11 +2,8 @@ import Simulate
 
 if __name__ == "__main__":
     simulate = Simulate.Simulate()
-    simulate.handle_parser_args()
-
     simulate.init_sheeps()
     simulate.print_sheeps()
-    simulate.init_wolf()
     round_ = 0
     while round_ != simulate.nr_of_rounds and simulate.alive_sheeps() > 0:
         #  ruch owiec
@@ -29,4 +26,4 @@ if __name__ == "__main__":
     simulate.save_csv_to_file('alive.csv')
 
     simulate.print_sheeps(only_alive=True)
-    # Simulate.close_logger()
+    Simulate.close_logger()

@@ -18,6 +18,9 @@ logging_choices = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICA
 
 
 def calc_distance(w: Wolf.Wolf, s: Sheep.Sheep):
+    logger.debug("Wywołana metoda calc_distance z parametrami: w=" + w.__repr__() + ", s=" + s.__repr__())
+    logger.info("Obliczono odległość d=" + str(sqrt((w.x - s.x) ** 2 + (w.y - s.y) ** 2)))
+    logger.debug("Wyjście z metody calc_distance")
     return sqrt((w.x - s.x) ** 2 + (w.y - s.y) ** 2)
 
 
@@ -39,6 +42,7 @@ def load_from_ini_file(file_name: str):
     else:
         global init_pos_limit
         init_pos_limit = float(config['Terrain']['InitPosLimit'])
+        logger.info('Ustawiono zmienną init_pos_limit=' + str(init_pos_limit))
 
     if float(config['Movement']['SheepMoveDist']) <= 0:
         logger.critical('SheepMoveDist musi być liczbą większą od 0')
@@ -46,6 +50,7 @@ def load_from_ini_file(file_name: str):
     else:
         global sheep_move_dist
         sheep_move_dist = float(config['Movement']['SheepMoveDist'])
+        logger.info("Ustawiono zmienną sheep_move_dist=" + str(sheep_move_dist))
 
     if float(config['Movement']['WolfMoveDist']) <= 0:
         logger.critical('WolfMoveDist musi być liczbą większą od 0')
@@ -53,6 +58,7 @@ def load_from_ini_file(file_name: str):
     else:
         global wolf_move_dist
         wolf_move_dist = float(config['Movement']['WolfMoveDist'])
+        logger.info('Ustawiono zmienną wolf_move_dist=' + str(wolf_move_dist))
 
     logging.debug('Wyjście z metody load_from_ini_file')
 
@@ -76,59 +82,79 @@ def add_args_to_parser(parser_):
 
 
 class Simulate:
-    # zmienne globalne
     def __init__(self):
+        global logger
+        logger = logging.getLogger(__name__)
         self.nr_of_rounds = 50
         self.nr_of_sheeps = 15
         self.sheeps = []
-        self.wolf: Wolf
         self.data_json = []
         self.data_csv = []
-        self.wait_flag = True
-        global logger
-        logger = logging.getLogger(__name__)
-
-    def init_sheeps(self):
-        for i in range(self.nr_of_sheeps):
-            self.sheeps.append(Sheep.Sheep())
-
-    def init_wolf(self):
+        self.wait_flag = False
+        self.handle_parser_args()
         self.wolf = Wolf.Wolf()
 
+    def init_sheeps(self):
+        logger.debug("Wejście do metody init_sheeps")
+        for i in range(self.nr_of_sheeps):
+            logger.info('Inicjowanie nowych owiec, iteracja ' + str(i))
+            self.sheeps.append(Sheep.Sheep())
+        logger.info('Utworzono następujące owce: ' + self.sheeps.__repr__())
+        logger.debug('Wyjście z metody init_sheeps')
+
     def print_sheeps(self, only_alive: bool = False):
+        logger.debug("Wejście do metody print_sheeps z parametrem only_alive=" + str(only_alive))
         for i in range(len(self.sheeps)):
             if only_alive:
                 if self.sheeps[i].is_alive:
+                    logger.info("Wyświeltanie owcy: " + str(i) + " - " + str(self.sheeps[i]))
                     print(i, " - ", self.sheeps[i])
             else:
+                logger.info("Wyświeltanie owcy: " + str(i) + " - " + str(self.sheeps[i]))
                 print(i, " - ", self.sheeps[i])
+        logger.debug("Wyjście z metody print_sheeps")
 
     def alive_sheeps(self) -> int:
+        logger.debug("Wywołano bezparametrową metodę alive_sheeps")
         counter = 0
         for i in self.sheeps:
             if i.is_alive:
                 counter += 1
+        logger.debug('Wyjście z metody alive_sheps, zwrócono liczbę ' + str(counter))
         return counter
 
     def add_to_json_list(self, round_nr: int):
+        logger.debug("Wywołanie metody add_to_json_list z parametrem round_nr=" + str(round_nr))
         _ = []
         for i in self.sheeps:
+            logger.info("Iteracja po wszystkich owcach: i=" + str(i))
             if i.is_alive:
                 _.append((i.x, i.y))
             else:
                 _.append("None")
+        logger.info("Dodawanie informacji o bieżącej turze do data_json: wolf_pos=" +
+                    str((self.wolf.x, self.wolf.y)) + "sheep_pos=" + str(_) + "round_nr=" + str(round_nr))
         self.data_json.append({
             'round_no': round_nr,
             'wolf_pos': (self.wolf.x, self.wolf.y),
             'sheep_pos': _
         })
+        logger.debug("Wyjście z metody add_to_json_list")
 
     def save_json_to_file(self, file_name: str):
+        logger.debug("Wywołanie metody save_json_to_file z parametrem file_name=" + file_name)
+        logger.info("Otwieranie pliku " + str(directory + "\\" + file_name) + " do zapisu")
         with open(str(directory + "\\" + file_name), 'w') as outfile:
             json.dump(self.data_json, outfile, indent=4)
+            logger.info("Zapisano dane do pliku")
+        logger.debug("Wyjście z metody save_json_to_file")
 
     def add_to_csv(self, round_: int):
+        logger.debug("Wywołano metodę add_to_csv z parametrem round_=" + str(round_))
+        logger.info("Dodawanie do zmiennej data_csv: round_=" + str(round_) + ", liczba żywych owiec: " + str(
+            self.alive_sheeps()))
         self.data_csv.append([round_, self.alive_sheeps()])
+        logger.debug("Wyjście z metody add_to_csv")
 
     def save_csv_to_file(self, file_name: str):
         logger.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)

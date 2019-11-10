@@ -9,8 +9,8 @@ class Sheep:
         self.x = random.randint(-Simulate.init_pos_limit * 100, Simulate.init_pos_limit * 100) / 100
         self.y = random.randint(-Simulate.init_pos_limit * 100, Simulate.init_pos_limit * 100) / 100
         self.is_alive = True
-        Simulate.logger.info('Ustawienie pozycji owcy oraz flagi is_alive: ' + self.__repr__())
-        Simulate.logger.debug('Wyjście z metody __init__ z klasy Sheep')
+        Simulate.logger.info('Ustawiono pozycję owcy oraz flagi is_alive')
+        Simulate.logger.debug('Wyjście z metody __init__ z klasy Sheep, utworzono obiekt ' + self.__repr__())
 
     def move_sheep(self):
         Simulate.logger.debug('Wywołana metoda move_sheep z argumentem typu Sheep - ' + self.__repr__())
