@@ -10,9 +10,10 @@ setup(
     packages=['chase'],
     package_dir={'chase': '.'},
     scripts=[
-        '.\\Simulate.py',
-        '.\\Sheep.py',
-        '.\\Wolf.py',
-        '.\\__main__.py'
+        'Simulate.py',
+        'Sheep.py',
+        'chase.ini',
+        'Wolf.py',
+        '__main__.py'
     ]
 )
