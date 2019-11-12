@@ -35,30 +35,38 @@ def load_from_ini_file(file_name: str):
     config = configparser.ConfigParser()
     logger.info('Czytanie z pliku .ini')
     config.read(file_name)
+    try:
+        if float(config['Terrain']['InitPosLimit']) <= 0:
+            logger.warning('InitPosLimit musi być liczbą większą od 0, ustawienie wartości domyślnej')
+        else:
+            global init_pos_limit
+            init_pos_limit = float(config['Terrain']['InitPosLimit'])
+            logger.info('Ustawiono zmienną init_pos_limit=' + str(init_pos_limit))
+    except ValueError:
+        logger.critical('InitPosLimit nie jest liczbą zmiennoprzecinkową!')
+        raise ValueError('InitPosLimit nie jest liczbą zmiennoprzecinkową!')
 
-    if float(config['Terrain']['InitPosLimit']) <= 0:
-        logger.critical('InitPosLimit musi być liczbą większą od 0')
-        raise Exception("InitPosLimit musi być liczbą większą od 0")
-    else:
-        global init_pos_limit
-        init_pos_limit = float(config['Terrain']['InitPosLimit'])
-        logger.info('Ustawiono zmienną init_pos_limit=' + str(init_pos_limit))
+    try:
+        if float(config['Movement']['SheepMoveDist']) <= 0:
+            logger.warning('SheepMoveDist musi być liczbą większą od 0, ustawienie wartości domyślnej')
+        else:
+            global sheep_move_dist
+            sheep_move_dist = float(config['Movement']['SheepMoveDist'])
+            logger.info("Ustawiono zmienną sheep_move_dist=" + str(sheep_move_dist))
+    except ValueError:
+        logger.critical('SheepMoveDist nie jest liczbą zmiennoprzecinkową!')
+        raise ValueError('SheepMoveDist nie jest liczbą zmiennoprzecinkową!')
 
-    if float(config['Movement']['SheepMoveDist']) <= 0:
-        logger.critical('SheepMoveDist musi być liczbą większą od 0')
-        raise Exception("SheepMoveDist musi być liczbą większą od 0")
-    else:
-        global sheep_move_dist
-        sheep_move_dist = float(config['Movement']['SheepMoveDist'])
-        logger.info("Ustawiono zmienną sheep_move_dist=" + str(sheep_move_dist))
-
-    if float(config['Movement']['WolfMoveDist']) <= 0:
-        logger.critical('WolfMoveDist musi być liczbą większą od 0')
-        raise Exception("WolfMoveDist musi być liczbą większą od 0")
-    else:
-        global wolf_move_dist
-        wolf_move_dist = float(config['Movement']['WolfMoveDist'])
-        logger.info('Ustawiono zmienną wolf_move_dist=' + str(wolf_move_dist))
+    try:
+        if float(config['Movement']['WolfMoveDist']) <= 0:
+            logger.warning('WolfMoveDist musi być liczbą większą od 0, ustawienie wartości domyślnej')
+        else:
+            global wolf_move_dist
+            wolf_move_dist = float(config['Movement']['WolfMoveDist'])
+            logger.info('Ustawiono zmienną wolf_move_dist=' + str(wolf_move_dist))
+    except ValueError:
+        logger.critical('WolfMoveDist nie jest liczbą zmiennoprzecinkową!')
+        raise ValueError('WolfMoveDist nie jest liczbą zmiennoprzecinkową!')
 
     logging.debug('Wyjście z metody load_from_ini_file')
 
@@ -147,7 +155,12 @@ class Simulate:
         with open(str(directory + "\\" + file_name), 'w') as outfile:
             json.dump(self.data_json, outfile, indent=4)
             logger.info("Zapisano dane do pliku")
-        logger.debug("Wyjście z metody save_json_to_file")
+        if outfile.closed:
+            logger.debug("Wyjście z metody save_json_to_file")
+            return
+        else:
+            logger.error("Błąd zamknięcia pliku .json do pliku!")
+            raise Exception("Błąd zapisu pliku .json")
 
     def add_to_csv(self, round_: int):
         logger.debug("Wywołano metodę add_to_csv z parametrem round_=" + str(round_))
@@ -168,7 +181,7 @@ class Simulate:
             return
         else:
             logger.error('Błąd zamknięcia pliku .csv do pliku!')
-            raise Exception("Błąd zapisu")
+            raise Exception("Błąd zapisu pliku .csv")
 
     def handle_parser_args(self):
         parser = argparse.ArgumentParser(description='Symulacja wilka i owiec')
@@ -208,14 +221,21 @@ class Simulate:
         self.wait_flag = args['wait']
 
     def move_wolf(self):
-        #  ruch wilka
+        logger.debug("Wejście do metody move_wolf")
         closest_sheep_index = 0
         closest_sheep_dist = 1000000
 
+        # ustalenie która owca jest najbliżej i jej odległość
+        logger.info("Wejście do pętli obliczającej odległość od nabliższej owcy")
         for i in range(len(self.sheeps)):
-            if calc_distance(self.wolf, self.sheeps[i]) < closest_sheep_dist and self.sheeps[i].is_alive:
+            _ = calc_distance(self.wolf, self.sheeps[i])
+            if _ < closest_sheep_dist and self.sheeps[i].is_alive:
                 closest_sheep_index = i
-                closest_sheep_dist = calc_distance(self.wolf, self.sheeps[i])
+                closest_sheep_dist = _
+                logger.info("Tymczasowe ustawienie: closest_sheep_index=" + str(
+                    closest_sheep_index) + ", closest_sheep_dist=" + str(closest_sheep_dist))
+        logger.info("Po wyjściu z pętli najbliższa owca: " + str(closest_sheep_index) + ", odległość: " + str(
+            closest_sheep_dist))
 
         #  zjedzenie lub ruch wilka
         if closest_sheep_dist < wolf_move_dist:
@@ -226,6 +246,8 @@ class Simulate:
             self.wolf.move_wolf(self.sheeps[closest_sheep_index])
 
     def move_sheeps(self):
+        logger.debug("Wejście do metody move_sheeps")
         for i in self.sheeps:
             if i.is_alive:
                 i.move_sheep()
+        logger.debug("Wyjście z metody move_sheeps")
