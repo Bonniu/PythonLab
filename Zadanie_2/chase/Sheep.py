@@ -32,6 +32,9 @@ class Sheep:
             Simulate.logger.info('Kierunek: w lewo, początkowa pozycja ' + self.__repr__())
             self.x -= Simulate.sheep_move_dist
             Simulate.logger.info('Kierunek: w lewo, końcowa pozycja ' + self.__repr__())
+        self.x = round(self.x, 3)
+        self.y = round(self.y, 3)
+        Simulate.logger.info('Zaokrąglenie pozycji owcy: ' + self.__repr__())
         Simulate.logger.debug('Wyjście z metody move_sheep')
 
     def kill_sheep(self):

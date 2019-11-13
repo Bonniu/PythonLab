@@ -19,6 +19,8 @@ class Wolf:
         Simulate.logger.info('Ustawienie pozycji wilka: początkowa pozycja: ' + self.__repr__())
         self.x += tmp_x
         self.y += tmp_y
+        self.x = round(self.x, 3)
+        self.y = round(self.y, 3)
         Simulate.logger.info('Ustawienie pozycji wilka: końcowa pozycja: ' + self.__repr__())
         Simulate.logger.debug('Wyjście z metody move_wolf z klasy Wolf')
 

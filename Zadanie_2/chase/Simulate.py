@@ -172,7 +172,6 @@ class Simulate:
     def save_csv_to_file(self, file_name: str):
         logger.debug('Wywołana metoda save_csv_to_file z parametrem file_name=' + file_name)
         with open(str(directory + "\\" + file_name), 'w', newline='') as csv_file:
-            csv_file.write("sep=,\n")
             csv_writer = csv.writer(csv_file, delimiter=',')
             for i in self.data_csv:
                 csv_writer.writerow([i[0], i[1]])
