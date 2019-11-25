@@ -1,0 +1,33 @@
+# odpalenie notebooka w folderze
+jupyter notebook --notebook-dir="pelna sciezka"
+
+na przykład
+jupyter notebook --notebook-dir="d:\xd\inf\5 semestr\Programowanie w języku Python\PythonLab\Zadanie_3"
+
+
+===========================================Zadanie 3: Instrukcja===========================================
+Zadanie polega na przeprowadzeniu analizy statystycznej dla wybranego zbioru danych.
+Zadanie należy udokumentować sprawozdaniem przygotowanym w Jupyter Notebook.
+Zbiory do wyboru (należy wybrać jeden z nich):
+abalone.data
+ecoli.data
+fertility_diagnosis.data
+iris.data
+-----------------------------------------Wymagania na ocenę dostateczną
+Dla atrybutów występujących w zbiorze wyznaczyć:
+
+w przypadku cech ilościowych: średnią arytmetyczną, odchylenie standardowe, medianę, minimum i maksimum;
+w przypadku cech jakościowych: dominantę, wskazując jednocześnie jej liczebność i częstość.
+Zadbać o czytelność rezultatów.
+
+-----------------------------------------Wymagania na ocenę dobrą
+
+Wyznaczyć macierz korelacji dla cech ilościowych.
+Narysować histogramy dla dwóch cech ilościowych najbardziej ze sobą skorelowanych.
+Zadbać o czytelność rezultatów oraz staranny i atrakcyjny wygląd histogramów.
+
+-----------------------------------------Wymagania na ocenę bardzo dobrą
+
+Przedstawić zależności korelacyjne za pomocą dwóch wybranych wykresów (jednym z nich może być na przykład mapa cieplna - nad wyborem drugiego należy się zastanowić, a swoją decyzję uzasadnić).
+Wyznaczyć i narysować krzywą regresji dla dwóch cech ilościowych najbardziej ze sobą skorelowanych.
+Zadbać o czytelność rezultatów oraz staranny i atrakcyjny wygląd wykresów.
