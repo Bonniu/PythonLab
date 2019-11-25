@@ -19,3 +19,26 @@ Smoking habit 1) never, 2) occasional 3) daily. (-1, 0, 1)
 Number of hours spent sitting per day ene-16 (0, 1)
 
 Output: Diagnosis normal (N), altered (O) 
+
+----------------------------------------przetłumaczone nazwy------------------------------------------------
+płodność
+
+Sezon, w którym przeprowadzono analizę. 1) zima, 2) wiosna, 3) lato, 4) jesień. (-1, -0,33, 0,33, 1)
+
+Wiek w momencie analizy. 18–36 (0, 1)
+
+Choroby dziecięce (tj. Ospa wietrzna, odra, świnka, polio) 1) tak, 2) nie. (0, 1)
+
+Wypadek lub poważna trauma 1) tak, 2) nie. (0, 1)
+
+Interwencja chirurgiczna 1) tak, 2) nie. (0, 1)
+
+Wysokie gorączki w ostatnim roku 1) mniej niż trzy miesiące temu, 2) więcej niż trzy miesiące temu, 3) nie. (-1, 0, 1)
+
+Częstotliwość spożywania alkoholu 1) kilka razy dziennie, 2) każdego dnia, 3) kilka razy w tygodniu, 4) raz w tygodniu, 5) prawie nigdy lub nigdy (0, 1)
+
+Nałóg palenia 1) nigdy, 2) okazjonalnie 3) codziennie. (-1, 0, 1)
+
+Liczba godzin spędzonych na siedzeniu dziennie ene-16 (0, 1)
+
+Wyjście: diagnoza normalna (N), zmieniona (O)
