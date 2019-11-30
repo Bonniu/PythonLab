@@ -29,9 +29,10 @@ print(dane.corr())
 
 #  wykresy
 plt.hist(dane.petal_length, bins=22, range=(0, 10), color='#FF0000')
+plt.gca().set(title='petal_length - histogram', ylabel='Częstość')
 plt.show()
 
 plt.hist(dane.petal_width, bins=13, range=(0, 3), color='#00FF00')
+plt.gca().set(title='petal_width - histogram', ylabel='Częstość')
 plt.show()
 
-# pozdro 5 linii na ocene 4 XD
