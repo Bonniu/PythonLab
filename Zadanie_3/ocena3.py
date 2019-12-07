@@ -1,26 +1,22 @@
-import pandas as pd
-import numpy as np
-import matplotlib as plt
 import os
 import statistics
 
-print(os.getcwd())
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-# dane = pd.read_csv("../fertility_diagnosis.data")
-dane = pd.read_csv(".\\fertility_Diagnosis.data")
+dane = pd.read_csv("fertility_Diagnosis.data", names=['Season', 'Age', 'Dis', 'Trau', 'Inter', 'Fever',
+                             'FreqAlc', 'SmokingH', 'SitHours', 'Output'])
 ilosc_danych: int = len(dane)
-
-# w przypadku cech ilościowych: średnią arytmetyczną, odchylenie
-# standardowe, medianę, minimum i maksimum;
-# w przypadku cech jakościowych: dominantę, wskazując jednocześnie jej liczebność i częstość.
-
+print(dane)
+# --
 
 print("\nCecha ilościowa: Season")
-print("""Opis: Sezon, w którym przeprowadzono analizę. 
-         1) zima, 
-         2) wiosna, 
-         3) lato, 
-         4) jesień. 
+print("""Opis: Sezon, w którym przeprowadzono analizę.
+         1) zima,
+         2) wiosna,
+         3) lato,
+         4) jesień.
          (-1, -0,33, 0,33, 1)""")
 season = dane.Season
 dominant = statistics.mode(season)
@@ -32,11 +28,11 @@ print("Częstość: ", licznik / ilosc_danych)
 print("\nCecha ilościowa: Age")
 print("Opis: Wiek w momencie analizy. 18–36 (0, 1)")
 age = round(dane.Age * 18) + 18
-print("Średnia: ", statistics.mean(age))
-print("Odchylenie standardowe: ", statistics.stdev(age))
-print("Mediana: ", statistics.median(age))
-print("Maksimum: ", max(age))
-print("Minimum: ", min(age))
+print("Średnia: ", np.mean(age))
+print("Odchylenie standardowe: ", np.std(age))
+print("Mediana: ", np.median(age))
+print("Maksimum: ", np.amax(age))
+print("Minimum: ", np.amin(age))
 
 print("\nCecha jakościowa: IfDiseases")
 print("Opis: Choroby dziecięce (tj. Ospa wietrzna, odra, świnka, polio) 1) tak, 2) nie. (0, 1)")
@@ -124,8 +120,3 @@ licznik = len([1 for i in output if i == dominant])
 print("Dominanta: ", dominant)
 print("Liczebność: ", licznik)
 print("Częstość: ", licznik / ilosc_danych)
-
-
-
-
-
