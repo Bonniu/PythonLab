@@ -81,16 +81,16 @@ def color_background_settings():
 
 def repaint_animals():
     mid_frame.delete("all")
-    paint_dot(simulate.wolf.x, simulate.wolf.y, Simulate.init_pos_limit, 250, wolf_color)
+    paint_dot(simulate.wolf.x, simulate.wolf.y, 250, wolf_color)
     for sheep in simulate.sheeps:
         if sheep.is_alive:
-            paint_dot(sheep.x, sheep.y, Simulate.init_pos_limit, 250, sheep_color)
+            paint_dot(sheep.x, sheep.y, 250, sheep_color)
     alive_sheeps.configure(text=simulate.alive_sheeps())
 
 
-def paint_dot(x, y, init_pos_limit, srodek, color=sheep_color):
-    start_range = init_pos_limit * -1.5
-    end_range = init_pos_limit * 1.5
+def paint_dot(x, y, srodek, color=sheep_color):
+    start_range = Simulate.init_pos_limit * -1.5
+    end_range = Simulate.init_pos_limit * 1.5
     range_ = end_range - start_range
     point_x = x * (srodek / (range_ / 2)) + srodek
     point_y = y * (srodek / (range_ / 2)) + srodek
@@ -153,6 +153,8 @@ def main_function():
 
     def reset_btn():
         simulate.sheeps = []
+        simulate.wolf.x = 0
+        simulate.wolf.y = 0
         repaint_animals()
 
     btn2 = Button(top2_frame, text="Reset", fg="red", command=reset_btn)
