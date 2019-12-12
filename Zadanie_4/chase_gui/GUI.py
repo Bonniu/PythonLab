@@ -3,11 +3,11 @@ import tkinter.messagebox
 import tkinter.colorchooser as cch
 
 import Simulate
+import Sheep
 
 simulate = Simulate.Simulate()
 simulate.init_sheeps()
 
-liczba = 0
 root = Tk()
 sheep_color = "#0000ff"
 wolf_color = "#ff0000"
@@ -28,7 +28,7 @@ def save_file():
     tkinter.messagebox.showinfo('xdxd')
 
 
-def quit_file(root):
+def quit_file():
     print('quit_file function')
     root.quit()
     root.destroy()
@@ -36,19 +36,27 @@ def quit_file(root):
 
 # -------------------------------------- mysz
 def left_click(event):
-    print('leftclick - owca')
-    print('{}, {}'.format(event.x, event.y))
-    paint_dot_mouse(event.x, event.y, sheep_color)
-
-    global liczba
-    liczba += 1
-    alive_sheeps.configure(text=liczba)
+    x, y = convert_mouse_to_xy(event.x, event.y, 250)
+    sheep = Sheep.Sheep()
+    sheep.set_pos(x, y)
+    simulate.sheeps.append(sheep)
+    paint_dot_mouse(x, y, sheep_color)
+    repaint_animals()
 
 
 def right_click(event):
     print('rightclick - wilk')
     print('{}, {}'.format(event.x, event.y))
     paint_dot_mouse(event.x, event.y, wolf_color)
+
+
+def convert_mouse_to_xy(x, y, srodek):
+    start_range = Simulate.init_pos_limit * -1.5
+    end_range = Simulate.init_pos_limit * 1.5
+    range_ = end_range - start_range
+    new_x = (x - srodek) * range_ / (2 * srodek)
+    new_y = (y - srodek) * range_ / (2 * srodek)
+    return new_x, new_y
 
 
 # -------------------------------------- kolory
@@ -72,7 +80,12 @@ def color_background_settings():
 
 
 def repaint_animals():
-    pass
+    mid_frame.delete("all")
+    paint_dot(simulate.wolf.x, simulate.wolf.y, Simulate.init_pos_limit, 250, wolf_color)
+    for sheep in simulate.sheeps:
+        if sheep.is_alive:
+            paint_dot(sheep.x, sheep.y, Simulate.init_pos_limit, 250, sheep_color)
+    alive_sheeps.configure(text=simulate.alive_sheeps())
 
 
 def paint_dot(x, y, init_pos_limit, srodek, color=sheep_color):
@@ -120,7 +133,7 @@ def main_function():
 
     mid_frame.bind("<Button-1>", left_click)
     mid_frame.bind("<Button-3>", right_click)
-    paint_dot(0, 0, 10, 250, color=wolf_color)
+    repaint_animals()
 
     bot_frame.pack()
 
@@ -128,20 +141,19 @@ def main_function():
     label_info.pack(side=TOP)
 
     def step_btn():
-        simulate.move_sheeps()
-        simulate.move_wolf()
-        repaint_animals()
+        if alive_sheeps['text'] == 0:
+            tkinter.messagebox.showinfo('Informacja', 'Brak owiec na planszy, nie wykonano żadnego ruchu')
+        else:
+            simulate.move_sheeps()
+            simulate.move_wolf()
+            repaint_animals()
 
     btn1 = Button(top2_frame, text="Step", fg="green", command=step_btn)
     btn1.pack(side=LEFT, fill=X)
 
     def reset_btn():
-        mid_frame.delete("all")
-        paint_dot(0, 0, 10, 250, color="#ff0000")
-        print('step')
-        global liczba
-        liczba = 0
-        alive_sheeps.configure(text=liczba)
+        simulate.sheeps = []
+        repaint_animals()
 
     btn2 = Button(top2_frame, text="Reset", fg="red", command=reset_btn)
     btn2.pack(side=RIGHT, fill=X)
@@ -156,10 +168,11 @@ def main_function():
 
 if __name__ == "__main__":
     # print owce
+
     simulate.print_sheeps()
     #  ruch owiec
-    #simulate.move_sheeps()
+    # simulate.move_sheeps()
     #  ruch wilka
-    #simulate.move_wolf()
+    # simulate.move_wolf()
 
     main_function()

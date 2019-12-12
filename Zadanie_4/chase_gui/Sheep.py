@@ -9,6 +9,10 @@ class Sheep:
         self.y = random.randint(-Simulate.init_pos_limit * 100, Simulate.init_pos_limit * 100) / 100
         self.is_alive = True
 
+    def set_pos(self, x, y):
+        self.x = x
+        self.y = y
+
     def move_sheep(self):
         direction = random.randint(1, 4)
         if direction == 1:
