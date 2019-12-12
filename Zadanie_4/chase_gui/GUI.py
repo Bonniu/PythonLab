@@ -4,6 +4,9 @@ import tkinter.colorchooser as cch
 
 import Simulate
 
+simulate = Simulate.Simulate()
+simulate.init_sheeps()
+
 liczba = 0
 root = Tk()
 sheep_color = "#0000ff"
@@ -12,6 +15,8 @@ mid_frame = Canvas(root, width=500, height=500, background="#00ff00")
 bot_frame = Frame(root)
 alive_sheeps = Label(bot_frame, text="0", fg="red")
 
+
+# -------------------------------------- operacje na plikach
 
 def open_file():
     print('open_file function')
@@ -29,6 +34,7 @@ def quit_file(root):
     root.destroy()
 
 
+# -------------------------------------- mysz
 def left_click(event):
     print('leftclick - owca')
     print('{}, {}'.format(event.x, event.y))
@@ -39,12 +45,13 @@ def left_click(event):
     alive_sheeps.configure(text=liczba)
 
 
-def settings():
-    print('settings')
-    settings_main = Tk()
-    settings_main.title("Wilk i owce2")
-    settings_main.mainloop()
+def right_click(event):
+    print('rightclick - wilk')
+    print('{}, {}'.format(event.x, event.y))
+    paint_dot_mouse(event.x, event.y, wolf_color)
 
+
+# -------------------------------------- kolory
 
 def color_sheep_settings():
     color = cch.askcolor()
@@ -64,10 +71,8 @@ def color_background_settings():
     mid_frame.configure(bg=color[1])
 
 
-def right_click(event):
-    print('rightclick - wilk')
-    print('{}, {}'.format(event.x, event.y))
-    paint_dot_mouse(event.x, event.y, wolf_color)
+def repaint_animals():
+    pass
 
 
 def paint_dot(x, y, init_pos_limit, srodek, color=sheep_color):
@@ -84,6 +89,8 @@ def paint_dot_mouse(x, y, color):
     mid_frame.create_oval(x - 4, y - 4, x + 4, y + 4, fill=color, outline=color)
     mid_frame.pack()
 
+
+# -------------------------------------- main function
 
 def main_function():
     root.title("Wilk i owce")
@@ -121,10 +128,9 @@ def main_function():
     label_info.pack(side=TOP)
 
     def step_btn():
-        print('step')
-        global liczba
-        liczba += 1
-        alive_sheeps.configure(text=liczba)
+        simulate.move_sheeps()
+        simulate.move_wolf()
+        repaint_animals()
 
     btn1 = Button(top2_frame, text="Step", fg="green", command=step_btn)
     btn1.pack(side=LEFT, fill=X)
@@ -142,10 +148,18 @@ def main_function():
 
     alive_sheeps_label = Label(bot_frame, text="Żywe owce: ", fg="red")
     alive_sheeps_label.pack(side=LEFT)
+
     alive_sheeps.pack(side=RIGHT)
 
     root.mainloop()
 
 
 if __name__ == "__main__":
+    # print owce
+    simulate.print_sheeps()
+    #  ruch owiec
+    #simulate.move_sheeps()
+    #  ruch wilka
+    #simulate.move_wolf()
+
     main_function()
