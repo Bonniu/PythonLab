@@ -8,12 +8,24 @@ import Sheep
 simulate = Simulate.Simulate()
 simulate.init_sheeps()
 
+scale = 1
 root = Tk()
 sheep_color = "#0000ff"
 wolf_color = "#ff0000"
 mid_frame = Canvas(root, width=500, height=500, background="#00ff00")
 bot_frame = Frame(root)
 alive_sheeps = Label(bot_frame, text="0", fg="red")
+top2_frame = Frame(root)
+
+
+def on_change_scale(event):
+    dict_ = {-2: 0.4, -1: 0.7, 0: 1, 1: 1.3, 2: 1.6}
+    global scale
+    scale = dict_[sss.get()]
+    repaint_animals()
+
+
+sss = Scale(top2_frame, from_=-2, to=2, orient=HORIZONTAL, command=on_change_scale)
 
 
 # -------------------------------------- operacje na plikach
@@ -36,21 +48,21 @@ def quit_file():
 
 # -------------------------------------- mysz
 def left_click(event):
-    x, y = convert_mouse_to_xy(event.x, event.y, 250)
+    x, y = convert_mouse_to_xy(event.x, event.y)
     sheep = Sheep.Sheep()
     sheep.set_pos(x, y)
     simulate.sheeps.append(sheep)
-    paint_dot_mouse(x, y, sheep_color)
     repaint_animals()
 
 
 def right_click(event):
-    print('rightclick - wilk')
-    print('{}, {}'.format(event.x, event.y))
-    paint_dot_mouse(event.x, event.y, wolf_color)
+    x, y = convert_mouse_to_xy(event.x, event.y)
+    simulate.wolf.x = x
+    simulate.wolf.y = y
+    repaint_animals()
 
 
-def convert_mouse_to_xy(x, y, srodek):
+def convert_mouse_to_xy(x, y, srodek=250):
     start_range = Simulate.init_pos_limit * -1.5
     end_range = Simulate.init_pos_limit * 1.5
     range_ = end_range - start_range
@@ -65,18 +77,20 @@ def color_sheep_settings():
     color = cch.askcolor()
     global sheep_color
     sheep_color = color[1]
+    repaint_animals()
 
 
 def color_wolf_settings():
     color = cch.askcolor()
     global wolf_color
     wolf_color = color[1]
+    repaint_animals()
 
 
 def color_background_settings():
     color = cch.askcolor()
-    mid_frame.delete("all")
     mid_frame.configure(bg=color[1])
+    repaint_animals()
 
 
 def repaint_animals():
@@ -88,18 +102,16 @@ def repaint_animals():
     alive_sheeps.configure(text=simulate.alive_sheeps())
 
 
-def paint_dot(x, y, srodek, color=sheep_color):
+def paint_dot(x, y, srodek, color=sheep_color, promien=4):
     start_range = Simulate.init_pos_limit * -1.5
     end_range = Simulate.init_pos_limit * 1.5
     range_ = end_range - start_range
+    range_ *= 1 / scale
+    promien *= scale
     point_x = x * (srodek / (range_ / 2)) + srodek
     point_y = y * (srodek / (range_ / 2)) + srodek
-    mid_frame.create_oval(point_x - 4, point_y - 4, point_x + 4, point_y + 4, fill=color, outline=color)
-    mid_frame.pack()
-
-
-def paint_dot_mouse(x, y, color):
-    mid_frame.create_oval(x - 4, y - 4, x + 4, y + 4, fill=color, outline=color)
+    mid_frame.create_oval(point_x - promien, point_y - promien, point_x + promien, point_y + promien, fill=color,
+                          outline=color)
     mid_frame.pack()
 
 
@@ -128,7 +140,6 @@ def main_function():
     top_frame = Frame(root)
     top_frame.pack()
 
-    top2_frame = Frame(root)
     top2_frame.pack()
 
     mid_frame.bind("<Button-1>", left_click)
@@ -159,6 +170,8 @@ def main_function():
 
     btn2 = Button(top2_frame, text="Reset", fg="red", command=reset_btn)
     btn2.pack(side=RIGHT, fill=X)
+
+    sss.pack(side=RIGHT, fill=X)
 
     alive_sheeps_label = Label(bot_frame, text="Żywe owce: ", fg="red")
     alive_sheeps_label.pack(side=LEFT)
