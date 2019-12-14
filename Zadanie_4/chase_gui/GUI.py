@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter.messagebox
 import tkinter.colorchooser as cch
-
+import re
 import Simulate
 import Sheep
 
@@ -71,26 +71,106 @@ def convert_mouse_to_xy(x, y, srodek=250):
     return new_x, new_y
 
 
-# -------------------------------------- kolory
-
-def color_sheep_settings():
-    color = cch.askcolor()
-    global sheep_color
-    sheep_color = color[1]
-    repaint_animals()
+# -------------------------------------- settings
 
 
-def color_wolf_settings():
-    color = cch.askcolor()
-    global wolf_color
-    wolf_color = color[1]
-    repaint_animals()
+def open_settings_window():
+    print('xd')
+    settings_root = Tk()
+    settings_root.title("Settings")
+    settings_root.geometry("250x250")
+    settings_root.resizable(False, False)
+
+    label1 = Label(settings_root, text="Kolor owiec:")
+    label1.grid(row=0, column=0, padx=12, pady=12)
+
+    # def color_sheep_settings():
+    #     color = cch.askcolor()
+    #     global sheep_color
+    #     sheep_color = color[1]
+
+    # btn1 = Button(settings, text="Kolor Owcy", fg="green", command=color_sheep_settings)
+    # btn1.grid(row=0, column=1, padx=12, pady=12)
+    ent1 = Entry(settings_root)
+    ent1.grid(row=0, column=1, padx=12, pady=12)
+
+    label1 = Label(settings_root, text="Kolor wilka: ")
+    label1.grid(row=1, column=0, padx=12, pady=12)
+
+    # def color_wolf_settings():
+    #     color = cch.askcolor()
+    #     global wolf_color
+    #     wolf_color = color[1]
+    #
+    # btn2 = Button(settings_root, text="Kolor Wilka", fg="red", command=color_wolf_settings)
+    # btn2.grid(row=1, column=1, padx=12, pady=12)
+
+    ent2 = Entry(settings_root)
+    ent2.grid(row=1, column=1, padx=12, pady=12)
+
+    label3 = Label(settings_root, text="Kolor tła: ")
+    label3.grid(row=2, column=0, padx=12, pady=12)
+
+    # def color_background_settings(self):
+    #     color = cch.askcolor()
+    #     mid_frame.configure(bg=color[1])
+    #
+    # btn3 = Button(settings_root, text="Kolor tła", fg="pink", command=color_background_settings)
+    # btn3.grid(row=2, column=1, padx=12, pady=12)
+
+    ent3 = Entry(settings_root)
+    ent3.grid(row=2, column=1, padx=12, pady=12)
+
+    def confirm_changes():
+        sheep_color_tmp = ent1.get()
+        wolf_color_tmp = ent2.get()
+        background_color_tmp = ent3.get()
+        counter = 0
+        if check_pattern(sheep_color_tmp):
+            global sheep_color
+            sheep_color = sheep_color_tmp
+            counter += 1
+        elif sheep_color_tmp == "":
+            pass
+        else:
+            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem - owca')
+            return
+
+        if check_pattern(wolf_color_tmp):
+            global wolf_color
+            wolf_color = wolf_color_tmp
+            counter += 1
+        elif wolf_color_tmp == "":
+            pass
+        else:
+            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem- wilk')
+            return
+
+        if check_pattern(background_color_tmp):
+            global mid_frame
+            mid_frame.configure(bg=background_color_tmp)
+            counter += 1
+        elif background_color_tmp == "":
+            pass
+        else:
+            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem - back')
+            return
+
+        if counter > 0:
+            repaint_animals()
+            tkinter.messagebox.showinfo('Informacja', 'Pomyślnie ustawiono kolory')
+            settings_root.destroy()
+        if counter == 0:
+            tkinter.messagebox.showinfo('Informacja', 'Nie zmieniono żadnego koloru')
+
+    btn4 = Button(settings_root, text="Potwierdź zmiany", fg="black", command=confirm_changes)
+    btn4.grid(row=3, columnspan=2, padx=12, pady=12)
 
 
-def color_background_settings():
-    color = cch.askcolor()
-    mid_frame.configure(bg=color[1])
-    repaint_animals()
+def check_pattern(string: str):
+    return re.match("^#([0-9a-fA-F]){6}", string)
+
+    # -------------------------------------- kolory
 
 
 def repaint_animals():
@@ -129,13 +209,8 @@ def main_function():
     menu_file.add_command(label="Save", command=save_file)
     menu_file.add_command(label="Quit", command=quit_file)
 
-    menu_settings = Menu(pasek_menu, tearoff=0)
-    menu_settings.add_command(label="Sheep color", command=color_sheep_settings)
-    menu_settings.add_command(label="Wolf color", command=color_wolf_settings)
-    menu_settings.add_command(label="Background color", command=color_background_settings)
-
     pasek_menu.add_cascade(label="File", menu=menu_file)
-    pasek_menu.add_cascade(label="Settings", menu=menu_settings)
+    pasek_menu.add_cascade(label="Settings", command=open_settings_window)
 
     top_frame = Frame(root)
     top_frame.pack()
