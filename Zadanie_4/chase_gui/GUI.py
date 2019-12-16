@@ -1,7 +1,12 @@
-from tkinter import *
-import tkinter.messagebox
-import tkinter.colorchooser as cch
+import json
 import re
+
+from tkinter import *
+from tkinter import filedialog
+import tkinter.messagebox
+
+import tkinter.colorchooser as cch
+
 import Simulate
 import Sheep
 
@@ -32,7 +37,20 @@ sss = Scale(top2_frame, from_=-2, to=2, orient=HORIZONTAL, command=on_change_sca
 
 def open_file():
     print('open_file function')
-    tkinter.messagebox.showerror('xdxd')
+    load_file_string = filedialog.askopenfilename(initialdir="/", title="Select file to open",
+                                                  filetypes=(("JSON files", "*.json"), ("All Files", "*.*")))
+    print(load_file_string)
+    json_str = None
+    try:
+        with open(load_file_string, 'r') as load_file_obj:
+            json_str = json.load(load_file_obj)
+            print(json.dumps(json_str, indent=4))
+    except json.decoder.JSONDecodeError:
+        print('Error in json')
+    pass
+
+
+# tkinter.messagebox.showerror('xdxd')
 
 
 def save_file():
@@ -66,6 +84,7 @@ def convert_mouse_to_xy(x, y, srodek=250):
     start_range = Simulate.init_pos_limit * -1.5
     end_range = Simulate.init_pos_limit * 1.5
     range_ = end_range - start_range
+    range_ *= 1 / scale
     new_x = (x - srodek) * range_ / (2 * srodek)
     new_y = (y - srodek) * range_ / (2 * srodek)
     return new_x, new_y
@@ -75,7 +94,6 @@ def convert_mouse_to_xy(x, y, srodek=250):
 
 
 def open_settings_window():
-    print('xd')
     settings_root = Tk()
     settings_root.title("Settings")
     settings_root.geometry("250x250")
@@ -84,87 +102,40 @@ def open_settings_window():
     label1 = Label(settings_root, text="Kolor owiec:")
     label1.grid(row=0, column=0, padx=12, pady=12)
 
-    # def color_sheep_settings():
-    #     color = cch.askcolor()
-    #     global sheep_color
-    #     sheep_color = color[1]
+    def color_sheep_settings():
+        color = cch.askcolor()
+        global sheep_color
+        sheep_color = color[1]
+        repaint_animals()
+        settings_root.destroy()
 
-    # btn1 = Button(settings, text="Kolor Owcy", fg="green", command=color_sheep_settings)
-    # btn1.grid(row=0, column=1, padx=12, pady=12)
-    ent1 = Entry(settings_root)
-    ent1.grid(row=0, column=1, padx=12, pady=12)
+    btn1 = Button(settings_root, text="Wybierz kolor owcy", fg="black", command=color_sheep_settings)
+    btn1.grid(row=0, column=1, padx=12, pady=12)
 
-    label1 = Label(settings_root, text="Kolor wilka: ")
-    label1.grid(row=1, column=0, padx=12, pady=12)
+    label2 = Label(settings_root, text="Kolor wilka: ")
+    label2.grid(row=1, column=0, padx=12, pady=12)
 
-    # def color_wolf_settings():
-    #     color = cch.askcolor()
-    #     global wolf_color
-    #     wolf_color = color[1]
-    #
-    # btn2 = Button(settings_root, text="Kolor Wilka", fg="red", command=color_wolf_settings)
-    # btn2.grid(row=1, column=1, padx=12, pady=12)
+    def color_wolf_settings():
+        color = cch.askcolor()
+        global wolf_color
+        wolf_color = color[1]
+        repaint_animals()
+        settings_root.destroy()
 
-    ent2 = Entry(settings_root)
-    ent2.grid(row=1, column=1, padx=12, pady=12)
+    btn2 = Button(settings_root, text="Wybierz kolor wilka", fg="black", command=color_wolf_settings)
+    btn2.grid(row=1, column=1, padx=12, pady=12)
 
     label3 = Label(settings_root, text="Kolor tła: ")
     label3.grid(row=2, column=0, padx=12, pady=12)
 
-    # def color_background_settings(self):
-    #     color = cch.askcolor()
-    #     mid_frame.configure(bg=color[1])
-    #
-    # btn3 = Button(settings_root, text="Kolor tła", fg="pink", command=color_background_settings)
-    # btn3.grid(row=2, column=1, padx=12, pady=12)
+    def color_background_settings(self):
+        color = cch.askcolor()
+        mid_frame.configure(bg=color[1])
+        repaint_animals()
+        settings_root.destroy()
 
-    ent3 = Entry(settings_root)
-    ent3.grid(row=2, column=1, padx=12, pady=12)
-
-    def confirm_changes():
-        sheep_color_tmp = ent1.get()
-        wolf_color_tmp = ent2.get()
-        background_color_tmp = ent3.get()
-        counter = 0
-        if check_pattern(sheep_color_tmp):
-            global sheep_color
-            sheep_color = sheep_color_tmp
-            counter += 1
-        elif sheep_color_tmp == "":
-            pass
-        else:
-            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem - owca')
-            return
-
-        if check_pattern(wolf_color_tmp):
-            global wolf_color
-            wolf_color = wolf_color_tmp
-            counter += 1
-        elif wolf_color_tmp == "":
-            pass
-        else:
-            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem- wilk')
-            return
-
-        if check_pattern(background_color_tmp):
-            global mid_frame
-            mid_frame.configure(bg=background_color_tmp)
-            counter += 1
-        elif background_color_tmp == "":
-            pass
-        else:
-            tkinter.messagebox.showerror('Błąd', 'Podany ciąg znaków nie jest kolorem - back')
-            return
-
-        if counter > 0:
-            repaint_animals()
-            tkinter.messagebox.showinfo('Informacja', 'Pomyślnie ustawiono kolory')
-            settings_root.destroy()
-        if counter == 0:
-            tkinter.messagebox.showinfo('Informacja', 'Nie zmieniono żadnego koloru')
-
-    btn4 = Button(settings_root, text="Potwierdź zmiany", fg="black", command=confirm_changes)
-    btn4.grid(row=3, columnspan=2, padx=12, pady=12)
+    btn3 = Button(settings_root, text="Wybierz kolor tła", fg="black", command=color_background_settings)
+    btn3.grid(row=2, column=1, padx=12, pady=12)
 
 
 def check_pattern(string: str):
@@ -182,7 +153,7 @@ def repaint_animals():
     alive_sheeps.configure(text=simulate.alive_sheeps())
 
 
-def paint_dot(x, y, srodek, color=sheep_color, promien=4):
+def paint_dot(x, y, srodek=250, color=sheep_color, promien=4):
     start_range = Simulate.init_pos_limit * -1.5
     end_range = Simulate.init_pos_limit * 1.5
     range_ = end_range - start_range
@@ -264,5 +235,5 @@ if __name__ == "__main__":
     # simulate.move_sheeps()
     #  ruch wilka
     # simulate.move_wolf()
-
+    # open_file()
     main_function()
