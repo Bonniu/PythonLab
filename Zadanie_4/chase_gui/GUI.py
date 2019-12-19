@@ -1,4 +1,5 @@
 import json
+import os
 import re
 
 from tkinter import *
@@ -9,6 +10,7 @@ import tkinter.colorchooser as cch
 
 import Simulate
 import Sheep
+import Wolf
 
 simulate = Simulate.Simulate()
 simulate.init_sheeps()
@@ -36,26 +38,51 @@ sss = Scale(top2_frame, from_=-2, to=2, orient=HORIZONTAL, command=on_change_sca
 # -------------------------------------- operacje na plikach
 
 def open_file():
-    print('open_file function')
     load_file_string = filedialog.askopenfilename(initialdir="/", title="Select file to open",
                                                   filetypes=(("JSON files", "*.json"), ("All Files", "*.*")))
-    print(load_file_string)
-    json_str = None
     try:
         with open(load_file_string, 'r') as load_file_obj:
             json_str = json.load(load_file_obj)
-            print(json.dumps(json_str, indent=4))
+            simulate.sheeps = []
+            add_sheeps(json_str['sheeps'])
+            simulate.wolf = Wolf.Wolf(json_str['wolf'][0], json_str['wolf'][1])
+            repaint_animals()
     except json.decoder.JSONDecodeError:
-        print('Error in json')
-    pass
+        print('Błąd w trakcie wczytywania z pliku')
+        tkinter.messagebox.showerror('Błąd', 'Błąd w trakcie wczytywania z pliku')
+    tkinter.messagebox.showinfo('Informacja', 'Wczytano stan z pliku ' + load_file_string)
 
 
-# tkinter.messagebox.showerror('xdxd')
+def add_sheeps(tab):
+    for i in range(len(tab)):
+        new_sheep = Sheep.Sheep()
+        new_sheep.set_pos(tab[i][0], tab[i][1])
+        simulate.sheeps.append(new_sheep)
+
+
+def create_json_to_save():
+    _ = []
+    for i in simulate.sheeps:
+        if i.is_alive:
+            _.append((i.x, i.y))
+    data_json = {
+        'wolf': (simulate.wolf.x, simulate.wolf.y),
+        'sheeps': _
+    }
+    return data_json
 
 
 def save_file():
-    print('save_file function')
-    tkinter.messagebox.showinfo('xdxd')
+    save_file_string = filedialog.asksaveasfile(initialdir="/", title="Select file to save",
+                                                filetypes=(("JSON files", "*.json"), ("All Files", "*.*")))
+
+    try:
+        with open(save_file_string.name, 'w') as save_file_obj:
+            json.dump(create_json_to_save(), save_file_obj, indent=4)
+    except json.decoder.JSONDecodeError:
+        print('Błąd w trakcie zapisywania do pliku')
+        tkinter.messagebox.showerror('Błąd', 'Błąd w trakcie zapisywania do pliku')
+    tkinter.messagebox.showinfo('Informacja', 'Zapisano stan do pliku ' + save_file_string.name)
 
 
 def quit_file():
