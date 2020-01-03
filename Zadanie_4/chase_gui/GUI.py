@@ -169,7 +169,7 @@ def open_settings_window():
     label4 = Label(settings_root, text="Czas kroku symulacji: ")
     label4.grid(row=3, column=0, padx=12, pady=12)
 
-    chosen_number = Combobox(settings_root, width=10)
+    chosen_number = Combobox(settings_root, width=10, state="readonly")
     chosen_number['values'] = (0.5, 1, 1.5, 2)
     chosen_number.grid(row=3, column=1, padx=12, pady=12)
     chosen_number.current(1)
