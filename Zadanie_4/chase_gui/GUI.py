@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import datetime
 
 from tkinter import *
 from tkinter import filedialog
@@ -15,6 +16,8 @@ import Wolf
 simulate = Simulate.Simulate()
 simulate.init_sheeps()
 
+auto_step: bool = False
+auto_secs: int = 1000
 scale = 1
 root = Tk()
 sheep_color = "#0000ff"
@@ -155,7 +158,7 @@ def open_settings_window():
     label3 = Label(settings_root, text="Kolor tła: ")
     label3.grid(row=2, column=0, padx=12, pady=12)
 
-    def color_background_settings(self):
+    def color_background_settings():
         color = cch.askcolor()
         mid_frame.configure(bg=color[1])
         repaint_animals()
@@ -225,15 +228,44 @@ def main_function():
     label_info.pack(side=TOP)
 
     def step_btn():
-        if alive_sheeps['text'] == 0:
+        if alive_sheeps['text'] == 0 and auto_step:
+            return False
+        elif alive_sheeps['text'] == 0:
             tkinter.messagebox.showinfo('Informacja', 'Brak owiec na planszy, nie wykonano żadnego ruchu')
+            return False
         else:
             simulate.move_sheeps()
             simulate.move_wolf()
             repaint_animals()
+            return True
 
-    btn1 = Button(top2_frame, text="Step", fg="green", command=step_btn)
+    btn1 = Button(top2_frame, text="Step", fg="blue", command=step_btn)
     btn1.pack(side=LEFT, fill=X)
+
+    def auto_step_fun():
+        global auto_step
+        auto_step = not auto_step
+        if auto_step:
+            btn3.configure(text="Stop", fg="red")
+            btn1.configure(state="disabled")
+            btn2.configure(state="disabled")
+            mid_frame.unbind("<Button-1>")
+            mid_frame.unbind("<Button-3>")
+            pasek_menu.entryconfig(1, state=DISABLED)
+            pasek_menu.entryconfig(2, state=DISABLED)
+
+        else:
+            btn3.configure(text="Start", fg="green")
+            btn1.configure(state="normal")
+            btn2.configure(state="normal")
+            mid_frame.bind("<Button-1>", left_click)
+            mid_frame.bind("<Button-3>", right_click)
+            pasek_menu.entryconfig(1, state=NORMAL)
+            pasek_menu.entryconfig(2, state=NORMAL)
+
+    btn3 = Button(top2_frame, text="Start", fg="green", command=auto_step_fun)
+
+    btn3.pack(side=LEFT, fill=X)
 
     def reset_btn():
         simulate.sheeps = []
@@ -250,6 +282,15 @@ def main_function():
     alive_sheeps_label.pack(side=LEFT)
 
     alive_sheeps.pack(side=RIGHT)
+
+    def clock():
+        root.after(auto_secs, clock)  # run itself again after 1000 ms
+        if auto_step:
+            if not step_btn():
+                auto_step_fun()
+                tkinter.messagebox.showinfo('Informacja', 'Brak owiec na planszy, koniec symulacji')
+
+    clock()
 
     root.mainloop()
 
