@@ -8,6 +8,7 @@ from tkinter import filedialog
 import tkinter.messagebox
 
 import tkinter.colorchooser as cch
+from tkinter.ttk import Combobox
 
 import Simulate
 import Sheep
@@ -126,7 +127,7 @@ def convert_mouse_to_xy(x, y, srodek=250):
 def open_settings_window():
     settings_root = Tk()
     settings_root.title("Settings")
-    settings_root.geometry("250x250")
+    settings_root.geometry("350x250")
     settings_root.resizable(False, False)
 
     label1 = Label(settings_root, text="Kolor owiec:")
@@ -136,8 +137,7 @@ def open_settings_window():
         color = cch.askcolor()
         global sheep_color
         sheep_color = color[1]
-        repaint_animals()
-        settings_root.destroy()
+        settings_root.lift()
 
     btn1 = Button(settings_root, text="Wybierz kolor owcy", fg="black", command=color_sheep_settings)
     btn1.grid(row=0, column=1, padx=12, pady=12)
@@ -149,8 +149,7 @@ def open_settings_window():
         color = cch.askcolor()
         global wolf_color
         wolf_color = color[1]
-        repaint_animals()
-        settings_root.destroy()
+        settings_root.lift()
 
     btn2 = Button(settings_root, text="Wybierz kolor wilka", fg="black", command=color_wolf_settings)
     btn2.grid(row=1, column=1, padx=12, pady=12)
@@ -161,17 +160,35 @@ def open_settings_window():
     def color_background_settings():
         color = cch.askcolor()
         mid_frame.configure(bg=color[1])
-        repaint_animals()
-        settings_root.destroy()
+        settings_root.lift()
+
 
     btn3 = Button(settings_root, text="Wybierz kolor tła", fg="black", command=color_background_settings)
     btn3.grid(row=2, column=1, padx=12, pady=12)
+
+    label4 = Label(settings_root, text="Czas kroku symulacji: ")
+    label4.grid(row=3, column=0, padx=12, pady=12)
+
+    chosen_number = Combobox(settings_root, width=10)
+    chosen_number['values'] = (0.5, 1, 1.5, 2)
+    chosen_number.grid(row=3, column=1, padx=12, pady=12)
+    chosen_number.current(1)
+
+    def on_closing():
+        global auto_secs
+        tmp: dict = {'0.5': 500, '1': 1000, '1.5': 1500, '2': 2000}
+        auto_secs = tmp[chosen_number.get()]
+        settings_root.destroy()
+        repaint_animals()
+
+    settings_root.protocol("WM_DELETE_WINDOW", on_closing)
 
 
 def check_pattern(string: str):
     return re.match("^#([0-9a-fA-F]){6}", string)
 
-    # -------------------------------------- kolory
+
+# -------------------------------------------- kolory
 
 
 def repaint_animals():
