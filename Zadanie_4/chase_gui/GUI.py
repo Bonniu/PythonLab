@@ -1,18 +1,13 @@
 import json
-import os
-import re
-import datetime
-
+import tkinter.colorchooser as cch
+import tkinter.messagebox
 from tkinter import *
 from tkinter import filedialog
-import tkinter.messagebox
-
-import tkinter.colorchooser as cch
 from tkinter.ttk import Combobox
 
 import Simulate
-import Sheep
-import Wolf
+from Simulate import Sheep
+from Simulate import Wolf
 
 simulate = Simulate.Simulate()
 simulate.init_sheeps()
@@ -29,7 +24,7 @@ alive_sheeps = Label(bot_frame, text="0", fg="red")
 top2_frame = Frame(root)
 
 
-def on_change_scale(event):
+def on_change_scale():
     dict_ = {-2: 0.4, -1: 0.7, 0: 1, 1: 1.3, 2: 1.6}
     global scale
     scale = dict_[sss.get()]
@@ -162,7 +157,6 @@ def open_settings_window():
         mid_frame.configure(bg=color[1])
         settings_root.lift()
 
-
     btn3 = Button(settings_root, text="Wybierz kolor tła", fg="black", command=color_background_settings)
     btn3.grid(row=2, column=1, padx=12, pady=12)
 
@@ -184,12 +178,7 @@ def open_settings_window():
     settings_root.protocol("WM_DELETE_WINDOW", on_closing)
 
 
-def check_pattern(string: str):
-    return re.match("^#([0-9a-fA-F]){6}", string)
-
-
 # -------------------------------------------- kolory
-
 
 def repaint_animals():
     mid_frame.delete("all")
