@@ -24,7 +24,7 @@ alive_sheeps = Label(bot_frame, text="0", fg="red")
 top2_frame = Frame(root)
 
 
-def on_change_scale():
+def on_change_scale(event):
     dict_ = {-2: 0.4, -1: 0.7, 0: 1, 1: 1.3, 2: 1.6}
     global scale
     scale = dict_[sss.get()]
@@ -113,6 +113,7 @@ def convert_mouse_to_xy(x, y, srodek=250):
     range_ *= 1 / scale
     new_x = (x - srodek) * range_ / (2 * srodek)
     new_y = (y - srodek) * range_ / (2 * srodek)
+    new_y *= -1
     return new_x, new_y
 
 
@@ -196,7 +197,7 @@ def paint_dot(x, y, srodek=250, color=sheep_color, promien=4):
     range_ *= 1 / scale
     promien *= scale
     point_x = x * (srodek / (range_ / 2)) + srodek
-    point_y = y * (srodek / (range_ / 2)) + srodek
+    point_y = (-y) * (srodek / (range_ / 2)) + srodek
     mid_frame.create_oval(point_x - promien, point_y - promien, point_x + promien, point_y + promien, fill=color,
                           outline=color)
     mid_frame.pack()
