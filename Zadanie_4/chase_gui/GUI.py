@@ -183,10 +183,10 @@ def open_settings_window():
 
 def repaint_animals():
     mid_frame.delete("all")
-    paint_dot(simulate.wolf.x, simulate.wolf.y, 250, wolf_color)
     for sheep in simulate.sheeps:
         if sheep.is_alive:
             paint_dot(sheep.x, sheep.y, 250, sheep_color)
+    paint_dot(simulate.wolf.x, simulate.wolf.y, 250, wolf_color)
     alive_sheeps.configure(text=simulate.alive_sheeps())
 
 
